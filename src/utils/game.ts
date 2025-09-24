@@ -2,6 +2,9 @@ import { countries } from "../data/countries";
 import { CountryGeometry } from "../types/country";
 
 export const pickRandom = <T>(items: T[]): T => {
+  if (!items.length) {
+    throw new Error("Cannot pick from an empty list");
+  }
   const index = Math.floor(Math.random() * items.length);
   return items[index];
 };
@@ -21,15 +24,16 @@ type RoundPayload = {
 };
 
 export const buildRound = (excludeCode?: string): RoundPayload => {
-  const pool = excludeCode
+  const filteredPool = excludeCode
     ? countries.filter((country) => country.code !== excludeCode)
     : countries;
 
-  const target = pickRandom(pool);
+  const targetPool = filteredPool.length ? filteredPool : countries;
+  const target = pickRandom(targetPool);
 
-  const distractors = shuffle(
-    pool.filter((candidate) => candidate.code !== target.code)
-  ).slice(0, 3);
+  const distractorPool = countries.filter((candidate) => candidate.code !== target.code);
+  const distractorCount = Math.min(3, distractorPool.length);
+  const distractors = shuffle(distractorPool).slice(0, distractorCount);
 
   const options = shuffle([target, ...distractors]);
 

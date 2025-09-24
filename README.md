@@ -1,20 +1,19 @@
 # MapMates
 
-MapMates is a cross-platform geography guessing game. Players identify a country from a highlighted map that also shows its neighbouring nations. The project targets iOS, Android, and the web using Expo + React Native.
+MapMates is a cross-platform geography guessing game. Players identify a country from an image while keeping track of score and streaks. The project targets iOS, Android, and the web using Expo + React Native.
 
 ## Features
 - Expo-managed React Native project with TypeScript for iOS/Android/web.
-- Centralised state management with Zustand and an extendable country data model.
-- SVG-based map renderer that highlights the target country and its neighbours.
+- Centralised state management with Zustand and an extendable country asset manifest.
+- Image-based country cards that you can swap by dropping files into `assets/countries/`.
 - Basic scoring, streak tracking, and round history scaffolding ready for extension.
 - Docker development workflow for consistent tooling across contributors.
 
 ## Tech Stack
-- [Expo](https://expo.dev/) + React Native 0.74
+- [Expo](https://expo.dev/) + React Native 0.81
 - TypeScript
 - Zustand for lightweight state management
 - React Navigation for screen management
-- React Native SVG for country silhouettes
 - Jest + Testing Library for component/unit tests
 
 ## Project Structure
@@ -55,10 +54,10 @@ docker compose up --build
 ```
 
 This command runs `npm install` during the first build, starts Expo inside the container, and exposes the following ports:
-- `19000` – Metro/Expo bundler (native)
-- `19001` – Expo WebSocket channel
-- `19002` – Expo dev tools UI
-- `8081` – Metro asset server / React Native web
+- `19000` - Metro/Expo bundler (native)
+- `19001` - Expo WebSocket channel
+- `19002` - Expo dev tools UI
+- `8081` - Metro asset server / React Native web
 
 The project folder is mounted into the container, so code changes on the host trigger hot reloads inside Expo. The container keeps its own `node_modules` to avoid polluting the host machine.
 
@@ -69,15 +68,15 @@ The project folder is mounted into the container, so code changes on the host tr
 _Note:_ Building native binaries (Gradle/Xcode) is out of scope for this container setup. For production builds use Expo Application Services or a dedicated CI workflow.
 
 ## Extending the Game Data
-The current dataset (`src/data/countries.ts`) includes simplified silhouettes for a small subset of European countries to demonstrate the rendering pipeline. To expand:
-1. Replace the placeholder SVG paths with simplified GeoJSON ? SVG exports (e.g. mapshaper + svg-path tools).
-2. Add neighbours to `CountryGeometry.neighbors` so the UI can render their outlines and display badges.
-3. Update tests or add new ones to cover scoring, timing, or additional game modes.
+The current dataset (`src/data/countries.ts`) points at a small set of image assets under `assets/countries/`. To add more countries:
+1. Drop a suitably cropped image (PNG/SVG/WebP) in `assets/countries/` and name it with the ISO alpha-3 code (e.g. `BRA.png`).
+2. Add an entry to the array in `src/data/countries.ts` with the code, display name, region, optional neighbour list, and `require` path to the asset.
+3. Run the test suite (`npm test`) and expand the question bank as needed.
 
-Consider splitting large datasets into lazy-loaded chunks or requesting them from a backend once the list grows.
+Think about keeping file sizes low for mobile builds. Tools like ImageOptim or Squoosh help compress while retaining clarity.
 
 ## Next Steps / Ideas
-- Import real geography data (TopoJSON/GeoJSON) and convert at build time.
+- Flesh out the country list and attach additional metadata (capital, trivia hints, etc.).
 - Add timed and streak-based game modes with leaderboards.
 - Track per-round analytics for difficulty tuning.
 - Integrate sound effects and onboarding tutorials.
