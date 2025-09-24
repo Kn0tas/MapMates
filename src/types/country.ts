@@ -1,23 +1,19 @@
+import { ImageSourcePropType } from "react-native";
+
 export type CountryRegion =
   | "Africa"
   | "Americas"
   | "Asia"
   | "Europe"
-  | "Oceania";
+  | "Oceania"
+  | "Other";
 
 export type CountryGeometry = {
   code: string;
   name: string;
   region: CountryRegion;
-  capital: string;
   neighbors: string[];
-  svg: {
-    viewBox: string;
-    shapes: Array<{
-      code: string;
-      path: string;
-    }>;
-  };
+  asset: ImageSourcePropType;
 };
 
 export type GameMode = "standard" | "timed";

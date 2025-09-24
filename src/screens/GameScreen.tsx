@@ -76,12 +76,14 @@ export const GameScreen: React.FC = () => {
         <ScoreBoard round={round} score={score} streak={streak} />
 
         <View style={styles.mapSection}>
-          <CountryMap status={status} target={target} />
+          <CountryMap target={target} />
           <Text style={styles.prompt}>{message}</Text>
-          <View>
-            <Text style={styles.neighborLabel}>Neighbours</Text>
-            <NeighborPills codes={target.neighbors} />
-          </View>
+          {target.neighbors.length ? (
+            <View>
+              <Text style={styles.neighborLabel}>Neighbours</Text>
+              <NeighborPills codes={target.neighbors} />
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.optionsSection}>

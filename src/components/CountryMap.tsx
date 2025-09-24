@@ -1,48 +1,16 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import { Image, StyleSheet, View } from "react-native";
 
-import { CountryGeometry, RoundStatus } from "../types/country";
+import { CountryGeometry } from "../types/country";
 
 type CountryMapProps = {
   target: CountryGeometry;
-  status: RoundStatus;
 };
 
-const COLORS = {
-  target: "#2563eb",
-  neighbor: "#94a3b8",
-  background: "#e2e8f0",
-  border: "#1f2937",
-};
-
-export const CountryMap: React.FC<CountryMapProps> = ({ target, status }) => {
+export const CountryMap: React.FC<CountryMapProps> = ({ target }) => {
   return (
     <View style={styles.wrapper}>
-      <Svg viewBox={target.svg.viewBox} style={styles.svg}>
-        {target.svg.shapes.map((shape) => {
-          const isTarget = shape.code === target.code;
-          const isNeighbor = target.neighbors.includes(shape.code);
-          const fillColor = isTarget
-            ? COLORS.target
-            : isNeighbor
-            ? COLORS.neighbor
-            : COLORS.background;
-
-          const opacity = status === "playing" && !isTarget ? 0.35 : 1;
-
-          return (
-            <Path
-              key={`${target.code}-${shape.code}`}
-              d={shape.path}
-              fill={fillColor}
-              fillOpacity={opacity}
-              stroke={COLORS.border}
-              strokeWidth={isTarget ? 3 : 1.5}
-            />
-          );
-        })}
-      </Svg>
+      <Image source={target.asset} style={styles.image} resizeMode="contain" />
     </View>
   );
 };
@@ -59,8 +27,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 4,
+    overflow: "hidden",
   },
-  svg: {
+  image: {
     flex: 1,
+    width: "100%",
+    height: "100%",
   },
 });
