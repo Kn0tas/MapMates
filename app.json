@@ -1,0 +1,25 @@
+{
+    "expo":  {
+                 "name":  "MapMates",
+                 "slug":  "mapmates",
+                 "version":  "0.1.0",
+                 "orientation":  "portrait",
+                 "userInterfaceStyle":  "light",
+                 "jsEngine":  "hermes",
+                 "entryPoint":  "./index.js",
+                 "assetBundlePatterns":  [
+                                             "**/*"
+                                         ],
+                 "ios":  {
+                             "supportsTablet":  true
+                         },
+                 "android":  {
+                                 "adaptiveIcon":  {
+                                                      "backgroundColor":  "#10172A"
+                                                  }
+                             },
+                 "web":  {
+                             "bundler":  "metro"
+                         }
+             }
+}

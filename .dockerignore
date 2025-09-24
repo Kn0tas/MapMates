@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+yarn-error.log
+.expo
+.expo-shared
+dist
+build
+.DS_Store
+coverage
+.git
+.gitignore

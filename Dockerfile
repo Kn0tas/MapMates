@@ -1,0 +1,19 @@
+FROM node:20-bullseye
+
+ENV EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0 \
+    REACT_NATIVE_PACKAGER_HOSTNAME=0.0.0.0 \
+    EXPO_NO_TELEMETRY=1 \
+    WATCHPACK_POLLING=true \
+    CHOKIDAR_USEPOLLING=true
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 8081 19000 19001 19002
+
+CMD ["npm", "run", "start"]
