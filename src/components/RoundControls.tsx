@@ -13,7 +13,7 @@ type RoundControlsProps = {
 export const RoundControls: React.FC<RoundControlsProps> = ({
   status,
   onReveal,
-  onNext,
+  onNext: _onNext,
   onSkip,
 }) => {
   if (status === "playing") {
@@ -36,9 +36,9 @@ export const RoundControls: React.FC<RoundControlsProps> = ({
   }
 
   return (
-    <Pressable style={[styles.button, styles.next]} onPress={onNext}>
-      <Text style={styles.buttonText}>Next Round</Text>
-    </Pressable>
+    <View style={styles.tapHint}>
+      <Text style={styles.hintText}>Tap anywhere to continue</Text>
+    </View>
   );
 };
 
@@ -46,31 +46,35 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 18,
+    marginTop: 12,
+    gap: 10,
   },
   button: {
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
-    marginTop: 18,
   },
   rowButton: {
     flex: 1,
-    marginTop: 0,
   },
   reveal: {
     backgroundColor: "#38bdf8",
-    marginRight: 10,
   },
   skip: {
     backgroundColor: "#f97316",
-  },
-  next: {
-    backgroundColor: "#22c55e",
   },
   buttonText: {
     color: "#0f172a",
     fontWeight: "700",
     fontSize: 16,
+  },
+  tapHint: {
+    alignItems: "center",
+    marginTop: 12,
+  },
+  hintText: {
+    color: "#94a3b8",
+    fontSize: 14,
+    letterSpacing: 0.4,
   },
 });

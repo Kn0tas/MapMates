@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGameStore } from "../context/gameStore";
@@ -61,55 +56,74 @@ export const GameScreen: React.FC = () => {
     return `It\'s ${target.name}.`;
   }, [status, target, selection, options]);
 
+  const handleAdvance = () => {
+    if (status === "revealed") {
+      nextRound();
+    } else if (status === "idle" || status === "complete") {
+      initGame();
+    }
+  };
+
   if (!target) {
     return (
-      <SafeAreaView style={styles.centered}>
-        <Text style={styles.message}>Preparing your next round...</Text>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centered}>
+          <Text style={styles.message}>Preparing your next round...</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <ScoreBoard round={round} score={score} streak={streak} />
+      <Pressable
+        style={styles.touchWrapper}
+        onPress={handleAdvance}
+        disabled={status === "playing"}
+      >
+        <View style={styles.container} pointerEvents="box-none">
+          <View style={styles.header}>
+            <Text style={styles.title}>MapMates v1.1</Text>
+            <ScoreBoard round={round} score={score} streak={streak} />
+          </View>
 
-        <View style={styles.mapSection}>
-          <CountryMap target={target} />
-          <Text style={styles.prompt}>{message}</Text>
+          <View style={styles.mapSection}>
+            <CountryMap target={target} />
+            <Text style={styles.prompt}>{message}</Text>
+          </View>
+
+          <View style={styles.optionsSection}>
+            {options.map((option) => {
+              const isSelected = selection === option.code;
+              const isCorrect = status !== "playing" && option.code === target.code;
+
+              return (
+                <OptionButton
+                  key={option.code}
+                  label={option.name}
+                  isCorrect={isCorrect}
+                  isSelected={isSelected}
+                  disabled={status !== "playing"}
+                  onPress={() => {
+                    if (status !== "playing") {
+                      return;
+                    }
+                    setSelection(option.code);
+                    submitGuess(option.code);
+                  }}
+                />
+              );
+            })}
+          </View>
+
+          <RoundControls
+            status={status}
+            onReveal={reveal}
+            onNext={nextRound}
+            onSkip={skipRound}
+          />
         </View>
-
-        <View style={styles.optionsSection}>
-          {options.map((option) => {
-            const isSelected = selection === option.code;
-            const isCorrect = status !== "playing" && option.code === target.code;
-
-            return (
-              <OptionButton
-                key={option.code}
-                label={option.name}
-                isCorrect={isCorrect}
-                isSelected={isSelected}
-                disabled={status !== "playing"}
-                onPress={() => {
-                  if (status !== "playing") {
-                    return;
-                  }
-                  setSelection(option.code);
-                  submitGuess(option.code);
-                }}
-              />
-            );
-          })}
-        </View>
-
-        <RoundControls
-          status={status}
-          onReveal={reveal}
-          onNext={nextRound}
-          onSkip={skipRound}
-        />
-      </ScrollView>
+      </Pressable>
     </SafeAreaView>
   );
 };
@@ -119,11 +133,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0b1120",
   },
+  touchWrapper: {
+    flex: 1,
+  },
   container: {
-    paddingHorizontal: 20,
-    paddingTop: 6,
-    paddingBottom: 24,
-    gap: 18,
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  header: {
+    gap: 8,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#f8fafc",
+    textAlign: "center",
+    letterSpacing: 0.8,
   },
   centered: {
     flex: 1,
@@ -132,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#0b1120",
   },
   mapSection: {
-    gap: 12,
+    gap: 10,
   },
   prompt: {
     fontSize: 18,
@@ -141,7 +170,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   optionsSection: {
-    marginTop: 6,
+    marginTop: 4,
   },
   message: {
     fontSize: 18,
