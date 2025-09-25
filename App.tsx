@@ -34,14 +34,13 @@ const App: React.FC = () => {
             headerStyle: { backgroundColor: "#111c33" },
             headerTitleStyle: { color: "#f1f5f9" },
             headerTitleAlign: "center",
-            headerTitleContainerStyle: { marginBottom: -10 },
             headerShadowVisible: false,
           }}
         >
           <Stack.Screen
             name="Game"
             component={GameScreen}
-            options={{ title: "MapMates" }}
+            options={{ title: "MapMates v1.1" }}
           />
         </Stack.Navigator>
       </NavigationContainer>

@@ -9,7 +9,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useGameStore } from "../context/gameStore";
 import { CountryMap } from "../components/CountryMap";
-import { NeighborPills } from "../components/NeighborPills";
 import { OptionButton } from "../components/OptionButton";
 import { RoundControls } from "../components/RoundControls";
 import { ScoreBoard } from "../components/ScoreBoard";
@@ -78,12 +77,6 @@ export const GameScreen: React.FC = () => {
         <View style={styles.mapSection}>
           <CountryMap target={target} />
           <Text style={styles.prompt}>{message}</Text>
-          {target.neighbors.length ? (
-            <View>
-              <Text style={styles.neighborLabel}>Neighbours</Text>
-              <NeighborPills codes={target.neighbors} />
-            </View>
-          ) : null}
         </View>
 
         <View style={styles.optionsSection}>
@@ -146,12 +139,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#e2e8f0",
     textAlign: "center",
-  },
-  neighborLabel: {
-    marginTop: 8,
-    color: "#cbd5f5",
-    fontWeight: "700",
-    letterSpacing: 0.5,
   },
   optionsSection: {
     marginTop: 6,
