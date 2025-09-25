@@ -18,7 +18,7 @@ export const CountryMap: React.FC<CountryMapProps> = ({ target }) => {
 const styles = StyleSheet.create({
   wrapper: {
     width: "100%",
-    aspectRatio: 1.3,
+    aspectRatio: 1,
     backgroundColor: "#f8fafc",
     borderRadius: 18,
     padding: 12,

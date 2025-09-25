@@ -31,16 +31,10 @@ const App: React.FC = () => {
         <Stack.Navigator
           initialRouteName="Game"
           screenOptions={{
-            headerStyle: { backgroundColor: "#111c33" },
-            headerTitleStyle: { color: "#f1f5f9" },
-            headerShadowVisible: false,
+            headerShown: false,
           }}
         >
-          <Stack.Screen
-            name="Game"
-            component={GameScreen}
-            options={{ title: "MapMates" }}
-          />
+          <Stack.Screen name="Game" component={GameScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
