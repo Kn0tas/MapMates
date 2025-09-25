@@ -33,6 +33,8 @@ const App: React.FC = () => {
           screenOptions={{
             headerStyle: { backgroundColor: "#111c33" },
             headerTitleStyle: { color: "#f1f5f9" },
+            headerTitleAlign: "center",
+            headerTitleContainerStyle: { marginBottom: -10 },
             headerShadowVisible: false,
           }}
         >
