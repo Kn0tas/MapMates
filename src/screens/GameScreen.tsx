@@ -18,7 +18,10 @@ export const GameScreen: React.FC = () => {
     streak,
     initGame,
     submitGuess,
-    nextRound,} = useGameStore();
+    nextRound,
+    reveal,
+    skipRound,
+  } = useGameStore();
 
   const [selection, setSelection] = useState<string | null>(null);
 
@@ -80,8 +83,10 @@ export const GameScreen: React.FC = () => {
       >
         <View style={styles.container} pointerEvents="box-none">
           <View style={styles.header}>
-            <Text style={styles.title}>MapMates v1.1</Text>
-            <ScoreBoard round={round} score={score} streak={streak} />
+            <Text style={styles.title}>MapMates</Text>
+            <View style={styles.scoreWrapper}>
+              <ScoreBoard round={round} score={score} streak={streak} />
+            </View>
           </View>
 
           <View style={styles.mapSection}>
@@ -137,14 +142,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   header: {
+    alignItems: "flex-start",
     gap: 8,
   },
   title: {
     fontSize: 22,
     fontWeight: "800",
     color: "#f8fafc",
-    textAlign: "center",
     letterSpacing: 0.8,
+  },
+  scoreWrapper: {
+    alignSelf: "stretch",
   },
   centered: {
     flex: 1,
