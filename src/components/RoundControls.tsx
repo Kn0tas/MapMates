@@ -13,7 +13,7 @@ export const RoundControls: React.FC<RoundControlsProps> = ({ status }) => {
   }
 
   return (
-    <View style={styles.hint}>
+    <View style={styles.hint} pointerEvents="none">
       <Text style={styles.hintText}>Tap anywhere to continue</Text>
     </View>
   );
@@ -21,12 +21,19 @@ export const RoundControls: React.FC<RoundControlsProps> = ({ status }) => {
 
 const styles = StyleSheet.create({
   hint: {
+    position: "absolute",
+    top: "45%",
+    left: 0,
+    right: 0,
     alignItems: "center",
-    marginTop: 12,
   },
   hintText: {
-    color: "#94a3b8",
+    color: "#f8fafc",
     fontSize: 14,
+    fontWeight: "700",
     letterSpacing: 0.4,
+    textShadowColor: "rgba(0, 0, 0, 0.45)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
 });
