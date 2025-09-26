@@ -1,32 +1,34 @@
 {
-  "expo": {
-    "name": "MapMates",
-    "slug": "mapmates",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
-    "jsEngine": "hermes",
-    "entryPoint": "./index.js",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "package": "com.mapmates.game",
-      "versionCode": 1,
-      "adaptiveIcon": {
-        "backgroundColor": "#10172A"
-      }
-    },
-    "web": {
-      "bundler": "metro"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "2dbc574c-a6bf-4bee-a72a-5ff8dc8dca42"
-      }
-    }
-  }
+    "expo":  {
+                 "name":  "MapMates",
+                 "slug":  "mapmates",
+                 "version":  "1.0.0",
+                 "orientation":  "portrait",
+                 "userInterfaceStyle":  "light",
+                 "jsEngine":  "hermes",
+                 "entryPoint":  "./index.js",
+                 "assetBundlePatterns":  [
+                                             "**/*"
+                                         ],
+                 "ios":  {
+                             "supportsTablet":  true
+                         },
+                 "android":  {
+                                 "package":  "com.mapmates.game",
+                                 "versionCode":  1,
+                                 "adaptiveIcon":  {
+                                                      "backgroundColor":  "#10172A",
+                                                      "foregroundImage":  "./assets/icon.png"
+                                                  }
+                             },
+                 "web":  {
+                             "bundler":  "metro"
+                         },
+                 "extra":  {
+                               "eas":  {
+                                           "projectId":  "2dbc574c-a6bf-4bee-a72a-5ff8dc8dca42"
+                                       }
+                           },
+                 "icon":  "./assets/icon.png"
+             }
 }
