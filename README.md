@@ -84,3 +84,6 @@ Think about keeping file sizes low for mobile builds. Tools like ImageOptim or S
 
 ## License
 Add your preferred licence here (MIT by default).
+
+### Branding
+- App icon (Expo + Play Store): ssets/icon.png.

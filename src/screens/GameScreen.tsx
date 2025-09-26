@@ -18,10 +18,7 @@ export const GameScreen: React.FC = () => {
     streak,
     initGame,
     submitGuess,
-    nextRound,
-    reveal,
-    skipRound,
-  } = useGameStore();
+    nextRound,} = useGameStore();
 
   const [selection, setSelection] = useState<string | null>(null);
 
