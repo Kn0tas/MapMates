@@ -116,12 +116,7 @@ export const GameScreen: React.FC = () => {
             })}
           </View>
 
-          <RoundControls
-            status={status}
-            onReveal={reveal}
-            onNext={nextRound}
-            onSkip={skipRound}
-          />
+          <RoundControls status={status} />
         </View>
       </Pressable>
     </SafeAreaView>
