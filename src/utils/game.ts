@@ -1,4 +1,4 @@
-import { countries } from "../data/countries";
+import { countries as allCountries } from "../data/countries";
 import { CountryGeometry } from "../types/country";
 
 export const pickRandom = <T>(items: T[]): T => {
@@ -23,17 +23,21 @@ type RoundPayload = {
   options: CountryGeometry[];
 };
 
-export const buildRound = (excludeCode?: string): RoundPayload => {
+export const buildRound = (
+  pool: CountryGeometry[],
+  excludeCode?: string
+): RoundPayload => {
+  const workingPool = pool.length ? pool : allCountries;
   const filteredPool = excludeCode
-    ? countries.filter((country) => country.code !== excludeCode)
-    : countries;
+    ? workingPool.filter((country) => country.code !== excludeCode)
+    : workingPool;
 
-  const targetPool = filteredPool.length ? filteredPool : countries;
+  const targetPool = filteredPool.length ? filteredPool : workingPool;
   const target = pickRandom(targetPool);
 
-  const distractorPool = countries.filter((candidate) => candidate.code !== target.code);
-  const distractorCount = Math.min(3, distractorPool.length);
-  const distractors = shuffle(distractorPool).slice(0, distractorCount);
+  const basePool = workingPool.filter((candidate) => candidate.code !== target.code);
+  const distractorCount = Math.min(3, basePool.length);
+  const distractors = shuffle(basePool).slice(0, distractorCount);
 
   const options = shuffle([target, ...distractors]);
 
