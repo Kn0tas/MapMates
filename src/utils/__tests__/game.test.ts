@@ -3,7 +3,7 @@ import { countries } from "../../data/countries";
 
 describe("buildRound", () => {
   it("returns a target and unique options", () => {
-    const { target, options } = buildRound();
+    const { target, options } = buildRound(countries);
 
     expect(target).toBeDefined();
     expect(options.length).toBeGreaterThanOrEqual(1);
@@ -15,8 +15,8 @@ describe("buildRound", () => {
   });
 
   it("tries to exclude the previous target when possible", () => {
-    const firstRound = buildRound();
-    const secondRound = buildRound(firstRound.target.code);
+    const firstRound = buildRound(countries);
+    const secondRound = buildRound(countries, firstRound.target.code);
 
     if (countries.length > 1) {
       expect(secondRound.target.code).not.toBe(firstRound.target.code);

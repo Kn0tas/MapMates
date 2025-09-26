@@ -8,8 +8,11 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { GameScreen } from "./src/screens/GameScreen";
+import { MenuScreen } from "./src/screens/MenuScreen";
+import { MapSettingsScreen } from "./src/screens/MapSettingsScreen";
+import { RootStackParamList } from "./src/navigation/types";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const theme = {
   ...DefaultTheme,
@@ -28,13 +31,22 @@ const App: React.FC = () => {
     <SafeAreaProvider>
       <NavigationContainer theme={theme}>
         <StatusBar style="light" />
-        <Stack.Navigator
-          initialRouteName="Game"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="Game" component={GameScreen} />
+        <Stack.Navigator initialRouteName="Game">
+          <Stack.Screen
+            name="Game"
+            component={GameScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Menu"
+            component={MenuScreen}
+            options={{ title: "Menu" }}
+          />
+          <Stack.Screen
+            name="MapSettings"
+            component={MapSettingsScreen}
+            options={{ title: "Map settings" }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

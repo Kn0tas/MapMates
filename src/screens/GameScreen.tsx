@@ -1,14 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import { useGameStore } from "../context/gameStore";
 import { CountryMap } from "../components/CountryMap";
 import { OptionButton } from "../components/OptionButton";
 import { RoundControls } from "../components/RoundControls";
 import { ScoreBoard } from "../components/ScoreBoard";
+import { RootStackParamList } from "../navigation/types";
+
+type Navigation = NativeStackNavigationProp<RootStackParamList>;
 
 export const GameScreen: React.FC = () => {
+  const navigation = useNavigation<Navigation>();
   const {
     status,
     target,
@@ -19,10 +25,17 @@ export const GameScreen: React.FC = () => {
     initGame,
     submitGuess,
     nextRound,
-    reveal,
-    skipRound,
-  } = useGameStore();
-
+  } = useGameStore((state) => ({
+    status: state.status,
+    target: state.target,
+    options: state.options,
+    round: state.round,
+    score: state.score,
+    streak: state.streak,
+    initGame: state.initGame,
+    submitGuess: state.submitGuess,
+    nextRound: state.nextRound,
+  }));
   const [selection, setSelection] = useState<string | null>(null);
 
   useEffect(() => {
@@ -83,7 +96,21 @@ export const GameScreen: React.FC = () => {
       >
         <View style={styles.container} pointerEvents="box-none">
           <View style={styles.header}>
-            <Text style={styles.title}>MapMates</Text>
+            <View style={styles.headerRow}>
+              <Text style={styles.title}>MapMates</Text>
+              <Pressable
+                hitSlop={8}
+                style={styles.menuButton}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  navigation.navigate("Menu");
+                }}
+              >
+                <View style={styles.menuLine} />
+                <View style={styles.menuLine} />
+                <View style={styles.menuLine} />
+              </Pressable>
+            </View>
             <View style={styles.scoreWrapper}>
               <ScoreBoard round={round} score={score} streak={streak} />
             </View>
@@ -142,14 +169,28 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   header: {
-    alignItems: "flex-start",
     gap: 8,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     fontSize: 22,
     fontWeight: "800",
     color: "#f8fafc",
     letterSpacing: 0.8,
+  },
+  menuButton: {
+    width: 32,
+    height: 22,
+    justifyContent: "space-between",
+  },
+  menuLine: {
+    height: 4,
+    borderRadius: 4,
+    backgroundColor: "#f8fafc",
   },
   scoreWrapper: {
     alignSelf: "stretch",
