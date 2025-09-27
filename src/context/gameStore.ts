@@ -11,12 +11,15 @@ import {
 } from "../types/country";
 import { countries } from "../data/countries";
 
+export const ROUND_LIMIT = 20;
+const CORRECT_POINTS = 10;
 type RegionFilter = "all" | "europe" | "americas" | "asiaOceania" | "africa";
 
 type GameState = {
   mode: GameMode;
   round: number;
   score: number;
+  highScore: number;
   streak: number;
   status: RoundStatus;
   target?: CountryGeometry;
@@ -32,8 +35,6 @@ type GameState = {
   skipRound: () => void;
   setRegionFilter: (filter: RegionFilter) => void;
 };
-
-const BASE_POINTS = 100;
 
 const calculateElapsed = (startedAt?: number): number => {
   if (!startedAt) {
@@ -66,6 +67,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   mode: "standard",
   round: 0,
   score: 0,
+  highScore: 0,
   streak: 0,
   status: "idle",
   target: undefined,
@@ -104,9 +106,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
     set((state) => {
       const updatedStreak = isCorrect ? state.streak + 1 : 0;
-      const pointsAwarded = isCorrect
-        ? BASE_POINTS + Math.min(updatedStreak, 5) * 10
-        : 0;
+      const pointsAwarded = isCorrect ? CORRECT_POINTS : 0;
       const updatedScore = state.score + pointsAwarded;
       const historyEntry: RoundHistoryEntry = {
         countryCode: target.code,
@@ -137,12 +137,22 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
   },
   nextRound: () => {
-    const { target } = get();
-    const pool = getPool(get().regionFilter);
-    const { target: nextTarget, options } = buildRound(pool, target?.code);
+    const state = get();
 
-    set((state) => ({
-      round: state.round + 1,
+    if (state.round >= ROUND_LIMIT) {
+      set((current) => ({
+        status: "complete" as RoundStatus,
+        revealedAt: Date.now(),
+        highScore: Math.max(current.highScore, current.score),
+      }));
+      return;
+    }
+
+    const pool = getPool(state.regionFilter);
+    const { target: nextTarget, options } = buildRound(pool, state.target?.code);
+
+    set((s) => ({
+      round: s.round + 1,
       status: "playing" as RoundStatus,
       target: nextTarget,
       options,
@@ -176,7 +186,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const pool = getPool(filter);
     const { target, options } = buildRound(pool);
 
-    set({
+    set((state) => ({
       regionFilter: filter,
       mode: "standard",
       round: 1,
@@ -188,8 +198,11 @@ export const useGameStore = create<GameState>((set, get) => ({
       startedAt: Date.now(),
       revealedAt: undefined,
       history: [],
-    });
+      highScore: state.highScore,
+    }));
   },
 }));
+
 export type { RegionFilter };
+
 

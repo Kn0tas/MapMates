@@ -5,14 +5,23 @@ type ScoreBoardProps = {
   round: number;
   score: number;
   streak: number;
+  roundLimit?: number;
+  highScore?: number;
 };
 
-export const ScoreBoard: React.FC<ScoreBoardProps> = ({ round, score, streak }) => {
+export const ScoreBoard: React.FC<ScoreBoardProps> = ({
+  round,
+  score,
+  streak,
+  roundLimit,
+  highScore,
+}) => {
+  const roundDisplay = roundLimit ? `${Math.min(round, roundLimit)}/${roundLimit}` : round;
   return (
     <View style={styles.container}>
       <View style={styles.metric}>
         <Text style={styles.label}>Round</Text>
-        <Text style={styles.value}>{round}</Text>
+        <Text style={styles.value}>{roundDisplay}</Text>
       </View>
       <View style={styles.metric}>
         <Text style={styles.label}>Score</Text>
@@ -21,6 +30,10 @@ export const ScoreBoard: React.FC<ScoreBoardProps> = ({ round, score, streak }) 
       <View style={styles.metric}>
         <Text style={styles.label}>Streak</Text>
         <Text style={styles.value}>{streak}</Text>
+      </View>
+      <View style={styles.metric}>
+        <Text style={styles.label}>High</Text>
+        <Text style={styles.value}>{highScore ?? 0}</Text>
       </View>
     </View>
   );

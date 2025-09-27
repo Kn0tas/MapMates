@@ -24,4 +24,11 @@ describe("buildRound", () => {
       expect(secondRound.target.code).toBe(firstRound.target.code);
     }
   });
+
+  it("builds distractors from the same region when available", () => {
+    const pool = countries.filter((c) => c.region === "Europe");
+    const { target, options } = buildRound(pool);
+
+    expect(options.every((option) => option.region === target.region)).toBe(true);
+  });
 });
