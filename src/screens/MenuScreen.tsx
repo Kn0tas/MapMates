@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -11,6 +11,12 @@ export const MenuScreen: React.FC<NativeStackScreenProps<RootStackParamList, "Me
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        <Pressable
+          style={styles.menuButton}
+          onPress={() => navigation.navigate("MultiplayerHome")}
+        >
+          <Text style={styles.menuButtonText}>Multiplayer</Text>
+        </Pressable>
         <Pressable
           style={styles.menuButton}
           onPress={() => navigation.navigate("MapSettings")}
@@ -30,7 +36,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    gap: 16,
+    gap: 20,
   },
   menuButton: {
     backgroundColor: "#1d4ed8",
