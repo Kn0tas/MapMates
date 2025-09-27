@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-import { useGameStore } from "../context/gameStore";
+import { useGameStore, ROUND_LIMIT } from "../context/gameStore";
 import { CountryMap } from "../components/CountryMap";
 import { OptionButton } from "../components/OptionButton";
 import { RoundControls } from "../components/RoundControls";
@@ -21,6 +21,7 @@ export const GameScreen: React.FC = () => {
     options,
     round,
     score,
+    highScore,
     streak,
     initGame,
     submitGuess,
@@ -31,6 +32,7 @@ export const GameScreen: React.FC = () => {
     options: state.options,
     round: state.round,
     score: state.score,
+    highScore: state.highScore,
     streak: state.streak,
     initGame: state.initGame,
     submitGuess: state.submitGuess,
@@ -57,17 +59,22 @@ export const GameScreen: React.FC = () => {
       return "Which country is highlighted?";
     }
 
+    if (status === "complete") {
+      const highNote = score === highScore && score > 0 ? " New high score!" : "";
+      return `Great job! Final score: ${score}.${highNote}`;
+    }
+
     if (selection === target.code) {
-      return `Correct! It\'s ${target.name}.`;
+      return `Correct! It's ${target.name}.`;
     }
 
     if (selection) {
       const chosen = options.find((option) => option.code === selection);
-      return `It\'s ${target.name}. You picked ${chosen?.name ?? "another country"}.`;
+      return `It's ${target.name}. You picked ${chosen?.name ?? "another country"}.`;
     }
 
-    return `It\'s ${target.name}.`;
-  }, [status, target, selection, options]);
+    return `It's ${target.name}.`;
+  }, [status, target, selection, options, score, highScore]);
 
   const handleAdvance = () => {
     if (status === "revealed") {
@@ -112,7 +119,13 @@ export const GameScreen: React.FC = () => {
               </Pressable>
             </View>
             <View style={styles.scoreWrapper}>
-              <ScoreBoard round={round} score={score} streak={streak} />
+              <ScoreBoard
+                round={round}
+                score={score}
+                streak={streak}
+                roundLimit={ROUND_LIMIT}
+                highScore={highScore}
+              />
             </View>
           </View>
 
