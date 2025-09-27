@@ -3,6 +3,7 @@ import path from "path";
 
 const ROOT = path.join(process.cwd(), "assets", "countries");
 const OUTPUT = path.join(process.cwd(), "src", "data", "countries.ts");
+const JSON_OUTPUT = path.join(process.cwd(), "src", "data", "countries.json");
 
 const SKIP = new Set(["eu bulgaria svg"]);
 
@@ -511,5 +512,10 @@ export const countryCodes = countries.map((country) => country.code);
 
 fs.writeFileSync(OUTPUT, fileContent, "utf8");
 
+const jsonEntries = entries.map(({ code, name, region }) => ({ code, name, region }));
+
+fs.writeFileSync(JSON_OUTPUT, JSON.stringify(jsonEntries, null, 2), "utf8");
+
 console.log(`Generated ${entries.length} countries -> ${OUTPUT}`);
+console.log(`Generated JSON dataset -> ${JSON_OUTPUT}`);
 

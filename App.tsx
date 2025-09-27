@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   DefaultTheme,
@@ -11,6 +11,12 @@ import { GameScreen } from "./src/screens/GameScreen";
 import { MenuScreen } from "./src/screens/MenuScreen";
 import { MapSettingsScreen } from "./src/screens/MapSettingsScreen";
 import { RootStackParamList } from "./src/navigation/types";
+import { MultiplayerHomeScreen } from "./src/screens/multiplayer/MultiplayerHomeScreen";
+import { MultiplayerCreateScreen } from "./src/screens/multiplayer/MultiplayerCreateScreen";
+import { MultiplayerJoinScreen } from "./src/screens/multiplayer/MultiplayerJoinScreen";
+import { MultiplayerLobbyScreen } from "./src/screens/multiplayer/MultiplayerLobbyScreen";
+import { MultiplayerGameScreen } from "./src/screens/multiplayer/MultiplayerGameScreen";
+import { MultiplayerResultsScreen } from "./src/screens/multiplayer/MultiplayerResultsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -47,6 +53,37 @@ const App: React.FC = () => {
             component={MapSettingsScreen}
             options={{ title: "Map settings" }}
           />
+
+          <Stack.Screen
+            name="MultiplayerHome"
+            component={MultiplayerHomeScreen}
+            options={{ title: "Multiplayer" }}
+          />
+          <Stack.Screen
+            name="MultiplayerCreate"
+            component={MultiplayerCreateScreen}
+            options={{ title: "Create game" }}
+          />
+          <Stack.Screen
+            name="MultiplayerJoin"
+            component={MultiplayerJoinScreen}
+            options={{ title: "Join game" }}
+          />
+          <Stack.Screen
+            name="MultiplayerLobby"
+            component={MultiplayerLobbyScreen}
+            options={{ title: "Lobby" }}
+          />
+          <Stack.Screen
+            name="MultiplayerGame"
+            component={MultiplayerGameScreen}
+            options={{ title: "Multiplayer match" }}
+          />
+          <Stack.Screen
+            name="MultiplayerResults"
+            component={MultiplayerResultsScreen}
+            options={{ title: "Results" }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
@@ -54,3 +91,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

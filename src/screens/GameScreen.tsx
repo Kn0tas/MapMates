@@ -23,9 +23,11 @@ export const GameScreen: React.FC = () => {
     score,
     highScore,
     streak,
+    autoAdvanceReason,
     initGame,
     submitGuess,
     nextRound,
+    acknowledgeAutoAdvance,
   } = useGameStore((state) => ({
     status: state.status,
     target: state.target,
@@ -34,9 +36,11 @@ export const GameScreen: React.FC = () => {
     score: state.score,
     highScore: state.highScore,
     streak: state.streak,
+    autoAdvanceReason: state.autoAdvanceReason,
     initGame: state.initGame,
     submitGuess: state.submitGuess,
     nextRound: state.nextRound,
+    acknowledgeAutoAdvance: state.acknowledgeAutoAdvance,
   }));
   const [selection, setSelection] = useState<string | null>(null);
 
@@ -64,6 +68,10 @@ export const GameScreen: React.FC = () => {
       return `Great job! Final score: ${score}.${highNote}`;
     }
 
+    if (status === "revealed" && autoAdvanceReason === "fail-streak") {
+      return `That's ${target.name}. Four misses in a row, moving on.`;
+    }
+
     if (selection === target.code) {
       return `Correct! It's ${target.name}.`;
     }
@@ -74,10 +82,11 @@ export const GameScreen: React.FC = () => {
     }
 
     return `It's ${target.name}.`;
-  }, [status, target, selection, options, score, highScore]);
+  }, [status, target, selection, options, score, highScore, autoAdvanceReason]);
 
   const handleAdvance = () => {
     if (status === "revealed") {
+      acknowledgeAutoAdvance();
       nextRound();
     } else if (status === "idle" || status === "complete") {
       initGame();
@@ -158,7 +167,7 @@ export const GameScreen: React.FC = () => {
             })}
           </View>
 
-          <RoundControls status={status} />
+          <RoundControls status={status} autoAdvanceReason={autoAdvanceReason} />
         </View>
       </Pressable>
     </SafeAreaView>
