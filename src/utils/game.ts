@@ -35,9 +35,15 @@ export const buildRound = (
   const targetPool = filteredPool.length ? filteredPool : workingPool;
   const target = pickRandom(targetPool);
 
-  const basePool = workingPool.filter((candidate) => candidate.code !== target.code);
-  const distractorCount = Math.min(3, basePool.length);
-  const distractors = shuffle(basePool).slice(0, distractorCount);
+  const basePool = workingPool
+    .filter((candidate) => candidate.code !== target.code)
+    .filter((candidate) => candidate.region === target.region);
+
+  const fallbackPool = workingPool.filter((candidate) => candidate.code !== target.code);
+  const sourcePool = basePool.length >= 3 ? basePool : fallbackPool;
+
+  const distractorCount = Math.min(3, sourcePool.length);
+  const distractors = shuffle(sourcePool).slice(0, distractorCount);
 
   const options = shuffle([target, ...distractors]);
 
