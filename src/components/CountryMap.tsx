@@ -1,5 +1,6 @@
-import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { Asset } from "expo-asset";
 
 import { CountryGeometry } from "../types/country";
 
@@ -8,9 +9,56 @@ type CountryMapProps = {
 };
 
 export const CountryMap: React.FC<CountryMapProps> = ({ target }) => {
+  const [uri, setUri] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    setUri(null);
+    setHasError(false);
+
+    const load = async () => {
+      try {
+        const asset = Asset.fromModule(target.asset);
+        if (!asset.downloaded) {
+          await asset.downloadAsync();
+        }
+        if (!isMounted) {
+          return;
+        }
+        setUri(asset.localUri ?? asset.uri ?? null);
+      } catch (error) {
+        console.warn(`Failed to load map asset for ${target.code}`, error);
+        if (isMounted) {
+          setHasError(true);
+        }
+      }
+    };
+
+    load();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [target]);
+
   return (
     <View style={styles.wrapper}>
-      <Image source={target.asset} style={styles.image} resizeMode="contain" />
+      {!hasError ? (
+        <Image
+          source={uri ? { uri } : target.asset}
+          style={styles.image}
+          resizeMode="contain"
+          onError={(e) => {
+            console.warn(`Image error for ${target.code}`, e.nativeEvent);
+            setHasError(true);
+          }}
+        />
+      ) : (
+        <View style={styles.placeholder}>
+          <Text style={styles.placeholderText}>Map unavailable</Text>
+        </View>
+      )}
     </View>
   );
 };

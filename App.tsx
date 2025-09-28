@@ -37,7 +37,18 @@ const App: React.FC = () => {
     <SafeAreaProvider>
       <NavigationContainer theme={theme}>
         <StatusBar style="light" />
-        <Stack.Navigator initialRouteName="Game">
+        <Stack.Navigator
+          initialRouteName="Game"
+          screenOptions={{
+            headerStyle: { backgroundColor: "#0b1120" },
+            headerTintColor: "#f8fafc",
+            headerTitleStyle: { fontWeight: "700", fontSize: 18 },
+            headerShadowVisible: false,
+            contentStyle: { backgroundColor: "#0b1120" },
+            statusBarStyle: "light",
+            statusBarTranslucent: false,
+          }}
+        >
           <Stack.Screen
             name="Game"
             component={GameScreen}
