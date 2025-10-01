@@ -28,7 +28,7 @@ export const MapSettingsScreen: React.FC<Props> = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <Text style={styles.subtitle}>Choose the continent you want to practice:</Text>
         <View style={styles.options}>

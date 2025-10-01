@@ -36,7 +36,7 @@ export const MultiplayerResultsScreen: React.FC<Props> = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <Text style={styles.title}>MVPs</Text>
         {winners.length ? (

@@ -40,7 +40,7 @@ export const MultiplayerJoinScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <Text style={styles.title}>Join lobby</Text>
         <Text style={styles.subtitle}>

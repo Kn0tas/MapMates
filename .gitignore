@@ -22,3 +22,4 @@ Thumbs.db
 .vscode/
 .env
 .env.local
+settings.local.json

@@ -9,7 +9,7 @@ export const MenuScreen: React.FC<NativeStackScreenProps<RootStackParamList, "Me
   navigation,
 }) => {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <Pressable
           style={styles.menuButton}
