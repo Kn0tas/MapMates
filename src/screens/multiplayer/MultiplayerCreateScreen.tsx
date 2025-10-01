@@ -54,7 +54,7 @@ export const MultiplayerCreateScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <Text style={styles.title}>Create lobby</Text>
         <Text style={styles.subtitle}>

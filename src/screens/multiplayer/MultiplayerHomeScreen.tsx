@@ -9,7 +9,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "MultiplayerHome">;
 
 export const MultiplayerHomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <Text style={styles.title}>Play with friends</Text>
         <Text style={styles.subtitle}>

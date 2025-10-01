@@ -64,7 +64,7 @@ export const MultiplayerLobbyScreen: React.FC<Props> = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>{game.name}</Text>
