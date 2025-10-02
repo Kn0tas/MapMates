@@ -95,10 +95,6 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
               Round {game.round}/{game.maxRounds}
             </Text>
           </View>
-          <View style={styles.codePill}>
-            <Text style={styles.codeLabel}>Code</Text>
-            <Text style={styles.codeValue}>{game.code}</Text>
-          </View>
         </View>
 
         <View style={styles.scorecard}>
