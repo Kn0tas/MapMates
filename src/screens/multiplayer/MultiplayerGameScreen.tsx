@@ -26,23 +26,9 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     meId: state.meId,
     submitGuess: state.submitGuess,
   }));
-  const [remainingMs, setRemainingMs] = useState(0);
 
   const me = useMemo(() => game?.players.find((player) => player.id === meId), [game, meId]);
   const targetCountry = useMemo(() => findCountryByCode(game?.targetCode ?? null), [game?.targetCode]);
-
-  useEffect(() => {
-    const deadline = game?.timerEndsAt ?? null;
-    if (deadline) {
-      const update = () => {
-        setRemainingMs(Math.max(0, deadline - Date.now()));
-      };
-      update();
-      const interval = setInterval(update, 250);
-      return () => clearInterval(interval);
-    }
-    setRemainingMs(0);
-  }, [game?.timerEndsAt]);
 
   useEffect(() => {
     if (!game) {
@@ -61,8 +47,6 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     switch (game.state) {
       case "playing":
         return "Which country is highlighted?";
-      case "voting":
-        return "Players disagreed. Vote for the most likely answer.";
       case "revealed":
         return `It was ${game.targetName ?? "the correct country"}.`;
       case "complete":
@@ -72,12 +56,11 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     }
   }, [game]);
 
-  const isInteractive = game?.state === "playing" || game?.state === "voting";
-  const secondsLeft = Math.ceil(remainingMs / 1000);
+  const isInteractive = game?.state === "playing";
 
   if (!game) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <View style={styles.centered}>
           <Text style={styles.message}>Connecting to multiplayer server…</Text>
         </View>
@@ -86,49 +69,34 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>MapMates</Text>
-            <Text style={styles.subtitle}>
-              Round {game.round}/{game.maxRounds}
-            </Text>
-          </View>
-          <View style={styles.codePill}>
-            <Text style={styles.codeLabel}>Code</Text>
-            <Text style={styles.codeValue}>{game.code}</Text>
-          </View>
-        </View>
-
-        <View style={styles.scorecard}>
-          <MultiplayerPlayerList
-            players={[...game.players].sort((a, b) => b.score - a.score)}
-            focusPlayerId={meId}
-          />
+          <Text style={styles.title}>MapMates</Text>
+          <Text style={styles.subtitle}>
+            Round {game.round}/{game.maxRounds} · Players: {game.players.length}
+          </Text>
         </View>
 
         <View style={styles.mapSection}>
           {targetCountry ? <CountryMap target={targetCountry} /> : null}
           <Text style={styles.prompt}>{message}</Text>
-          {secondsLeft > 0 && game.state === "voting" ? (
-            <Text style={styles.timerLabel}>{secondsLeft}s left to vote</Text>
-          ) : null}
         </View>
 
         <View style={styles.optionsSection}>
           {game.options.map((option) => {
             const isCorrect = game.state === "revealed" && option.code === game.targetCode;
-            const isSelected = me?.lastChoice === option.code;
-            const votes = game.voteCounts?.[option.code] ?? 0;
+            const isMyChoice = me?.lastChoice === option.code;
+            const isWrong = game.state === "revealed" && isMyChoice && !isCorrect;
             return (
               <OptionButton
                 key={option.code}
                 label={option.name}
                 isCorrect={isCorrect}
-                isSelected={!!isSelected}
+                isSelected={false}
+                isWrong={isWrong}
                 disabled={!isInteractive}
-                badgeCount={game.state === "voting" ? votes : 0}
+                badgeCount={0}
                 onPress={() => {
                   if (!isInteractive) {
                     return;
@@ -160,8 +128,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 16,
-    gap: 16,
+    paddingBottom: 8,
+    gap: 12,
   },
   centered: {
     flex: 1,
@@ -176,6 +144,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 16,
   },
   title: {
     color: "#f8fafc",

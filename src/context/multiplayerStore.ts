@@ -61,8 +61,6 @@ const mapPhase = (state?: MultiplayerGameState["state"]): MultiplayerPhase => {
       return "lobby";
     case "playing":
       return "playing";
-    case "voting":
-      return "voting";
     case "revealed":
       return "revealed";
     case "complete":

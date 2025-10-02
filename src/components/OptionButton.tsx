@@ -5,6 +5,7 @@ type OptionButtonProps = {
   label: string;
   isCorrect: boolean;
   isSelected: boolean;
+  isWrong?: boolean;
   disabled?: boolean;
   badgeCount?: number;
   onPress: () => void;
@@ -14,17 +15,20 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   label,
   isCorrect,
   isSelected,
+  isWrong,
   disabled,
   badgeCount,
   onPress,
 }) => {
   const backgroundColor = isCorrect
     ? "#22c55e"
+    : isWrong
+    ? "#ef4444"
     : isSelected
     ? "#ef4444"
     : "#1d4ed8";
 
-  const opacity = disabled && !isSelected && !isCorrect ? 0.6 : 1;
+  const opacity = disabled && !isSelected && !isCorrect && !isWrong ? 0.6 : 1;
 
   const badgeLabel =
     typeof badgeCount === "number" && badgeCount > 0
