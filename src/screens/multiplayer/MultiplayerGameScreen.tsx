@@ -92,16 +92,9 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
           <View>
             <Text style={styles.title}>MapMates</Text>
             <Text style={styles.subtitle}>
-              Round {game.round}/{game.maxRounds}
+              Round {game.round}/{game.maxRounds} · Players: {game.players.length}
             </Text>
           </View>
-        </View>
-
-        <View style={styles.scorecard}>
-          <MultiplayerPlayerList
-            players={[...game.players].sort((a, b) => b.score - a.score)}
-            focusPlayerId={meId}
-          />
         </View>
 
         <View style={styles.mapSection}>
