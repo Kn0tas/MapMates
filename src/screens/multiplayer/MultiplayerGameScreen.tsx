@@ -77,7 +77,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
 
   if (!game) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <View style={styles.centered}>
           <Text style={styles.message}>Connecting to multiplayer server…</Text>
         </View>
@@ -86,7 +86,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <View style={styles.header}>
           <View>

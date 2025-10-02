@@ -1,5 +1,4 @@
 ﻿import React from "react";
-import { StatusBar } from "expo-status-bar";
 import {
   DefaultTheme,
   NavigationContainer,
@@ -36,7 +35,6 @@ const App: React.FC = () => {
   return (
     <SafeAreaProvider>
       <NavigationContainer theme={theme}>
-        <StatusBar style="light" />
         <Stack.Navigator
           initialRouteName="Game"
           screenOptions={{
@@ -46,7 +44,6 @@ const App: React.FC = () => {
             headerShadowVisible: false,
             contentStyle: { backgroundColor: "#0b1120" },
             statusBarStyle: "light",
-            statusBarTranslucent: false,
           }}
         >
           <Stack.Screen
