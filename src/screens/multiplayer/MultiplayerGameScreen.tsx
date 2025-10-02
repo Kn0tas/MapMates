@@ -26,23 +26,9 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     meId: state.meId,
     submitGuess: state.submitGuess,
   }));
-  const [remainingMs, setRemainingMs] = useState(0);
 
   const me = useMemo(() => game?.players.find((player) => player.id === meId), [game, meId]);
   const targetCountry = useMemo(() => findCountryByCode(game?.targetCode ?? null), [game?.targetCode]);
-
-  useEffect(() => {
-    const deadline = game?.timerEndsAt ?? null;
-    if (deadline) {
-      const update = () => {
-        setRemainingMs(Math.max(0, deadline - Date.now()));
-      };
-      update();
-      const interval = setInterval(update, 250);
-      return () => clearInterval(interval);
-    }
-    setRemainingMs(0);
-  }, [game?.timerEndsAt]);
 
   useEffect(() => {
     if (!game) {
@@ -61,8 +47,6 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     switch (game.state) {
       case "playing":
         return "Which country is highlighted?";
-      case "voting":
-        return "Players disagreed. Vote for the most likely answer.";
       case "revealed":
         return `It was ${game.targetName ?? "the correct country"}.`;
       case "complete":
@@ -72,8 +56,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     }
   }, [game]);
 
-  const isInteractive = game?.state === "playing" || game?.state === "voting";
-  const secondsLeft = Math.ceil(remainingMs / 1000);
+  const isInteractive = game?.state === "playing";
 
   if (!game) {
     return (
@@ -98,26 +81,22 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.mapSection}>
           {targetCountry ? <CountryMap target={targetCountry} /> : null}
           <Text style={styles.prompt}>{message}</Text>
-          {secondsLeft > 0 && game.state === "voting" ? (
-            <Text style={styles.timerLabel}>{secondsLeft}s left to vote</Text>
-          ) : null}
         </View>
 
         <View style={styles.optionsSection}>
           {game.options.map((option) => {
             const isCorrect = game.state === "revealed" && option.code === game.targetCode;
-            const isSelected = me?.lastChoice === option.code;
-            const totalVotes = game.voteCounts?.[option.code] ?? 0;
-            const otherPlayersVotes = isSelected ? Math.max(0, totalVotes - 1) : totalVotes;
-            const showBadge = game.state === "playing" || game.state === "voting";
+            const isMyChoice = me?.lastChoice === option.code;
+            const isWrong = game.state === "revealed" && isMyChoice && !isCorrect;
             return (
               <OptionButton
                 key={option.code}
                 label={option.name}
                 isCorrect={isCorrect}
                 isSelected={false}
+                isWrong={isWrong}
                 disabled={!isInteractive}
-                badgeCount={showBadge ? otherPlayersVotes : 0}
+                badgeCount={0}
                 onPress={() => {
                   if (!isInteractive) {
                     return;

@@ -24,9 +24,7 @@ const countriesPath = path.join(__dirname, "..", "src", "data", "countries.json"
 const countries = JSON.parse(fs.readFileSync(countriesPath, "utf8"));
 
 const ROUND_LIMIT = 20;
-const ATTEMPT_POINTS = [10, 9, 7, 5];
-const MAX_ATTEMPTS = ATTEMPT_POINTS.length;
-const VOTE_DURATION_MS = 15_000;
+const CORRECT_POINTS = 10;
 const DISCONNECT_GRACE_MS = 20_000;
 
 const REGION_BY_FILTER = {
@@ -139,16 +137,13 @@ const getGameStatePayload = (game) => {
     name: game.name,
     state: game.state,
     round: game.round,
-    attempt: game.attempt,
     targetCode: game.target?.code ?? null,
     targetName: game.target?.name ?? null,
     options: game.options ?? [],
     players,
-    voteCounts: game.voteCounts ?? {},
     timerEndsAt: game.timerEndsAt ?? null,
     regionFilter: game.regionFilter,
     maxRounds: ROUND_LIMIT,
-    maxAttempts: MAX_ATTEMPTS,
     mvpIds: getMvpIds(game),
   };
 };
@@ -173,34 +168,32 @@ const resetForNewRound = (game) => {
 };
 
 const startRound = (game, excludeCode) => {
+  console.log(`[${game.code}] startRound called for round ${game.round}`);
   game.state = "playing";
-  game.attempt = 1;
   const pool = buildPoolForGame(game);
   const { target, options } = buildRound(pool, excludeCode);
   game.target = target;
   game.options = options;
-  game.voteCounts = {};
   game.timerEndsAt = null;
   resetForNewRound(game);
+  console.log(`[${game.code}] Emitting new round state, target: ${target.name}`);
   emitGameState(game);
 };
 
 const finishRound = (game) => {
-  if (game.timer) {
-    clearTimeout(game.timer);
-    game.timer = null;
-  }
+  console.log(`[${game.code}] finishRound called at ${new Date().toISOString()}`);
   game.state = "revealed";
-  game.voteCounts = {};
   game.timerEndsAt = null;
   emitGameState(game);
 
   setTimeout(() => {
+    console.log(`[${game.code}] advanceRoundOrEnd called at ${new Date().toISOString()}`);
     advanceRoundOrEnd(game);
   }, 2000);
 };
 
 const advanceRoundOrEnd = (game) => {
+  console.log(`[${game.code}] advanceRoundOrEnd: current round ${game.round}/${ROUND_LIMIT}`);
   if (game.round >= ROUND_LIMIT) {
     game.state = "complete";
     game.timerEndsAt = null;
@@ -209,12 +202,12 @@ const advanceRoundOrEnd = (game) => {
   }
 
   game.round += 1;
+  console.log(`[${game.code}] Starting round ${game.round}`);
   startRound(game, game.target?.code);
 };
 
 const evaluateGuesses = (game) => {
   const targetCode = game.target.code;
-  const pending = [];
 
   game.players.forEach((player) => {
     if (!player.connected) {
@@ -225,39 +218,15 @@ const evaluateGuesses = (game) => {
     }
 
     if (player.lastChoice === targetCode) {
-      const points = ATTEMPT_POINTS[Math.min(game.attempt, MAX_ATTEMPTS) - 1] ?? 0;
-      player.score += points;
+      player.score += CORRECT_POINTS;
       player.correct = true;
       player.status = "correct";
     } else {
-      pending.push(player);
-      player.status = "pending";
+      player.status = "wrong";
     }
   });
 
-  if (!pending.length || game.attempt >= MAX_ATTEMPTS) {
-    finishRound(game);
-    return;
-  }
-
-  game.attempt += 1;
-  game.state = "voting";
-  game.voteCounts = pending.reduce((acc, player) => {
-    const choice = player.lastChoice;
-    if (choice) {
-      acc[choice] = (acc[choice] ?? 0) + 1;
-    }
-    return acc;
-  }, {});
-  game.timerEndsAt = Date.now() + VOTE_DURATION_MS;
-  emitGameState(game);
-
-  if (game.timer) {
-    clearTimeout(game.timer);
-  }
-  game.timer = setTimeout(() => {
-    finishRound(game);
-  }, VOTE_DURATION_MS);
+  finishRound(game);
 };
 
 const resolveHostDecision = (game, player) => {
@@ -304,12 +273,9 @@ io.on("connection", (socket) => {
       nicknames: new Set([trimmedNickname.toLowerCase()]),
       state: "lobby",
       round: 0,
-      attempt: 0,
       target: null,
       options: [],
-      timer: null,
       timerEndsAt: null,
-      voteCounts: {},
     };
 
     games.set(code, game);
@@ -434,7 +400,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    if (game.state !== "playing" && game.state !== "voting") {
+    if (game.state !== "playing") {
       callback?.({ success: false, error: "Not accepting guesses" });
       return;
     }
@@ -448,8 +414,8 @@ io.on("connection", (socket) => {
       callback?.({ success: false, error: "Player disconnected" });
       return;
     }
-    if (player.correct) {
-      callback?.({ success: false, error: "Already correct" });
+    if (player.hasAnswered) {
+      callback?.({ success: false, error: "Already answered this round" });
       return;
     }
 
@@ -457,15 +423,13 @@ io.on("connection", (socket) => {
     player.hasAnswered = true;
     player.status = "answered";
 
-    if (game.state === "voting") {
-      game.voteCounts[choice] = (game.voteCounts[choice] ?? 0) + 1;
-      emitGameState(game);
-    }
-
     const activePlayers = Array.from(game.players.values()).filter((candidate) => candidate.connected);
-    const allResponded = activePlayers.every((candidate) => candidate.correct || candidate.hasAnswered);
+    const allResponded = activePlayers.every((candidate) => candidate.hasAnswered);
 
-    if (allResponded && game.state !== "revealed") {
+    console.log(`[${game.code}] Player ${player.nickname} answered. ${activePlayers.filter(p => p.hasAnswered).length}/${activePlayers.length} responded`);
+
+    if (allResponded && game.state === "playing") {
+      console.log(`[${game.code}] All players answered, evaluating...`);
       evaluateGuesses(game);
     }
 
