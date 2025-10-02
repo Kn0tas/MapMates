@@ -89,12 +89,10 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>MapMates</Text>
-            <Text style={styles.subtitle}>
-              Round {game.round}/{game.maxRounds} · Players: {game.players.length}
-            </Text>
-          </View>
+          <Text style={styles.title}>MapMates</Text>
+          <Text style={styles.subtitle}>
+            Round {game.round}/{game.maxRounds} · Players: {game.players.length}
+          </Text>
         </View>
 
         <View style={styles.mapSection}>
@@ -109,15 +107,17 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
           {game.options.map((option) => {
             const isCorrect = game.state === "revealed" && option.code === game.targetCode;
             const isSelected = me?.lastChoice === option.code;
-            const votes = game.voteCounts?.[option.code] ?? 0;
+            const totalVotes = game.voteCounts?.[option.code] ?? 0;
+            const otherPlayersVotes = isSelected ? Math.max(0, totalVotes - 1) : totalVotes;
+            const showBadge = game.state === "playing" || game.state === "voting";
             return (
               <OptionButton
                 key={option.code}
                 label={option.name}
                 isCorrect={isCorrect}
-                isSelected={!!isSelected}
+                isSelected={false}
                 disabled={!isInteractive}
-                badgeCount={game.state === "voting" ? votes : 0}
+                badgeCount={showBadge ? otherPlayersVotes : 0}
                 onPress={() => {
                   if (!isInteractive) {
                     return;
@@ -149,8 +149,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: 16,
-    gap: 16,
+    paddingBottom: 8,
+    gap: 12,
   },
   centered: {
     flex: 1,
@@ -165,6 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 16,
   },
   title: {
     color: "#f8fafc",
