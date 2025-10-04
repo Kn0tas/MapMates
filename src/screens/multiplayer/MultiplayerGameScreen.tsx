@@ -1,4 +1,4 @@
-ï»¿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -29,6 +29,24 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
 
   const me = useMemo(() => game?.players.find((player) => player.id === meId), [game, meId]);
   const targetCountry = useMemo(() => findCountryByCode(game?.targetCode ?? null), [game?.targetCode]);
+  const [now, setNow] = useState(Date.now());
+
+  const selectionCounts = useMemo(() => {
+    if (!game) {
+      return new Map<string, number>();
+    }
+    const counts = new Map<string, number>();
+    game.players.forEach((player) => {
+      if (!player.connected) {
+        return;
+      }
+      if (!player.lastChoice) {
+        return;
+      }
+      counts.set(player.lastChoice, (counts.get(player.lastChoice) ?? 0) + 1);
+    });
+    return counts;
+  }, [game]);
 
   useEffect(() => {
     if (!game) {
@@ -39,6 +57,25 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
       navigation.navigate("MultiplayerResults");
     }
   }, [game, navigation]);
+
+  useEffect(() => {
+    if (game?.state !== "playing" || !game?.timerEndsAt) {
+      return;
+    }
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 250);
+    return () => clearInterval(interval);
+  }, [game?.timerEndsAt, game?.state]);
+
+  const timeRemaining = useMemo(() => {
+    if (!game || !game.timerEndsAt || game.state !== "playing") {
+      return null;
+    }
+    const delta = Math.max(0, game.timerEndsAt - now);
+    return Math.max(0, Math.ceil(delta / 1000));
+  }, [game?.timerEndsAt, game?.state, now]);
 
   const message = useMemo(() => {
     if (!game) {
@@ -62,7 +99,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
     return (
       <SafeAreaView style={styles.safeArea} edges={['bottom']}>
         <View style={styles.centered}>
-          <Text style={styles.message}>Connecting to multiplayer serverâ€¦</Text>
+          <Text style={styles.message}>Connecting to multiplayer server…</Text>
         </View>
       </SafeAreaView>
     );
@@ -74,12 +111,19 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.header}>
           <Text style={styles.title}>MapMates</Text>
           <Text style={styles.subtitle}>
-            Round {game.round}/{game.maxRounds} Â· Players: {game.players.length}
+            Round {game.round}/{game.maxRounds} · Players: {game.players.length}
           </Text>
         </View>
 
         <View style={styles.mapSection}>
-          {targetCountry ? <CountryMap target={targetCountry} /> : null}
+          <View style={styles.mapWrapper}>
+            {targetCountry ? <CountryMap target={targetCountry} /> : null}
+            {game.state === "playing" && timeRemaining !== null ? (
+              <View style={styles.timerBadge}>
+                <Text style={styles.timerLabel}>Time left: {timeRemaining}s</Text>
+              </View>
+            ) : null}
+          </View>
           <Text style={styles.prompt}>{message}</Text>
         </View>
 
@@ -88,6 +132,12 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
             const isCorrect = game.state === "revealed" && option.code === game.targetCode;
             const isMyChoice = me?.lastChoice === option.code;
             const isWrong = game.state === "revealed" && isMyChoice && !isCorrect;
+            const isPendingSelection = game.state === "playing" && isMyChoice;
+            const badgeCount =
+              game.state === "playing"
+                ? selectionCounts.get(option.code) ?? 0
+                : 0;
+
             return (
               <OptionButton
                 key={option.code}
@@ -96,7 +146,8 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
                 isSelected={false}
                 isWrong={isWrong}
                 disabled={!isInteractive}
-                badgeCount={0}
+                badgeCount={badgeCount}
+                isPending={isPendingSelection}
                 onPress={() => {
                   if (!isInteractive) {
                     return;
@@ -184,6 +235,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
+  mapWrapper: {
+    position: "relative",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  timerBadge: {
+    position: "absolute",
+    bottom: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(15, 23, 42, 0.85)",
+    borderWidth: 1,
+    borderColor: "#fbbf24",
+  },
   prompt: {
     color: "#f8fafc",
     fontSize: 18,
@@ -213,3 +280,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+

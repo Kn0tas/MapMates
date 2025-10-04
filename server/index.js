@@ -25,6 +25,8 @@ const countries = JSON.parse(fs.readFileSync(countriesPath, "utf8"));
 
 const ROUND_LIMIT = 20;
 const CORRECT_POINTS = 10;
+const FOLLOWUP_POINTS = 9;
+const GUESS_RESPONSE_MS = 10_000;
 const DISCONNECT_GRACE_MS = 20_000;
 
 const REGION_BY_FILTER = {
@@ -85,6 +87,7 @@ const createPlayer = (nickname) => ({
   disconnectDeadline: null,
   disconnectTimer: null,
   awaitingHostDecision: false,
+  answerTimestamp: null,
 });
 
 const removePlayer = (game, playerId) => {
@@ -106,6 +109,7 @@ const removePlayer = (game, playerId) => {
   }
 
   if (!game.players.size) {
+    clearRoundTimer(game);
     games.delete(game.code);
   }
 };
@@ -156,11 +160,20 @@ const buildPoolForGame = (game) => {
   return filterCountries(game.regionFilter);
 };
 
+const clearRoundTimer = (game) => {
+  if (game.roundTimer) {
+    clearTimeout(game.roundTimer);
+    game.roundTimer = null;
+  }
+  game.timerEndsAt = null;
+};
+
 const resetForNewRound = (game) => {
   game.players.forEach((player) => {
     player.correct = false;
     player.hasAnswered = false;
     player.lastChoice = null;
+    player.answerTimestamp = null;
     if (player.connected) {
       player.status = game.state === "lobby" ? "lobby" : "playing";
     }
@@ -169,6 +182,7 @@ const resetForNewRound = (game) => {
 
 const startRound = (game, excludeCode) => {
   console.log(`[${game.code}] startRound called for round ${game.round}`);
+  clearRoundTimer(game);
   game.state = "playing";
   const pool = buildPoolForGame(game);
   const { target, options } = buildRound(pool, excludeCode);
@@ -209,6 +223,24 @@ const advanceRoundOrEnd = (game) => {
 const evaluateGuesses = (game) => {
   const targetCode = game.target.code;
 
+  clearRoundTimer(game);
+
+  const correctPlayers = Array.from(game.players.values())
+    .filter((player) => player.connected && player.lastChoice === targetCode);
+
+  let firstCorrectId = null;
+  if (correctPlayers.length) {
+    correctPlayers.sort((a, b) => {
+      const aTime = a.answerTimestamp ?? Number.MAX_SAFE_INTEGER;
+      const bTime = b.answerTimestamp ?? Number.MAX_SAFE_INTEGER;
+      if (aTime === bTime) {
+        return String(a.nickname ?? "").localeCompare(String(b.nickname ?? ""));
+      }
+      return aTime - bTime;
+    });
+    firstCorrectId = correctPlayers[0]?.id ?? null;
+  }
+
   game.players.forEach((player) => {
     if (!player.connected) {
       return;
@@ -218,7 +250,8 @@ const evaluateGuesses = (game) => {
     }
 
     if (player.lastChoice === targetCode) {
-      player.score += CORRECT_POINTS;
+      const award = player.id === firstCorrectId ? CORRECT_POINTS : FOLLOWUP_POINTS;
+      player.score += award;
       player.correct = true;
       player.status = "correct";
     } else {
@@ -276,6 +309,7 @@ io.on("connection", (socket) => {
       target: null,
       options: [],
       timerEndsAt: null,
+      roundTimer: null,
     };
 
     games.set(code, game);
@@ -377,11 +411,14 @@ io.on("connection", (socket) => {
       return;
     }
 
+    clearRoundTimer(game);
+
     game.players.forEach((player) => {
       player.score = 0;
       player.correct = false;
       player.hasAnswered = false;
       player.lastChoice = null;
+      player.answerTimestamp = null;
       if (player.connected) {
         player.status = "playing";
       }
@@ -422,6 +459,19 @@ io.on("connection", (socket) => {
     player.lastChoice = choice;
     player.hasAnswered = true;
     player.status = "answered";
+    player.answerTimestamp = Date.now();
+
+    if (!game.roundTimer) {
+      game.timerEndsAt = Date.now() + GUESS_RESPONSE_MS;
+      game.roundTimer = setTimeout(() => {
+        console.log(`[${game.code}] Guess response window elapsed; evaluating guesses.`);
+        if (game.state === "playing") {
+          evaluateGuesses(game);
+        }
+      }, GUESS_RESPONSE_MS);
+    }
+
+    emitGameState(game);
 
     const activePlayers = Array.from(game.players.values()).filter((candidate) => candidate.connected);
     const allResponded = activePlayers.every((candidate) => candidate.hasAnswered);

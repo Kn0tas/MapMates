@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type OptionButtonProps = {
@@ -9,6 +9,7 @@ type OptionButtonProps = {
   disabled?: boolean;
   badgeCount?: number;
   onPress: () => void;
+  isPending?: boolean;
 };
 
 export const OptionButton: React.FC<OptionButtonProps> = ({
@@ -19,21 +20,22 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   disabled,
   badgeCount,
   onPress,
+  isPending,
 }) => {
   const backgroundColor = isCorrect
     ? "#22c55e"
     : isWrong
     ? "#ef4444"
+    : isPending
+    ? "#facc15"
     : isSelected
     ? "#ef4444"
     : "#1d4ed8";
 
-  const opacity = disabled && !isSelected && !isCorrect && !isWrong ? 0.6 : 1;
+  const opacity =
+    disabled && !isSelected && !isCorrect && !isWrong && !isPending ? 0.6 : 1;
 
-  const badgeLabel =
-    typeof badgeCount === "number" && badgeCount > 0
-      ? `\u2713${badgeCount}`
-      : null;
+  const showBadge = typeof badgeCount === "number" && badgeCount > 0;
 
   return (
     <Pressable
@@ -49,9 +51,12 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
       ]}
     >
       <Text style={styles.label}>{label}</Text>
-      {badgeLabel ? (
+      {showBadge ? (
         <View style={styles.badge}>
-          <Text style={styles.badgeText}>{badgeLabel}</Text>
+          <Text style={styles.badgeCheck}>{'\u2713'}</Text>
+          <View style={styles.badgeCounter}>
+            <Text style={styles.badgeCounterText}>{badgeCount}</Text>
+          </View>
         </View>
       ) : null}
     </Pressable>
@@ -75,21 +80,40 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    right: -10,
+    right: -8,
     top: "50%",
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: "#0f766e",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "#0b1120",
-    marginTop: -16,
+    marginTop: -18,
   },
-  badgeText: {
+  badgeCheck: {
     color: "#f0fdfa",
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: "800",
+  },
+  badgeCounter: {
+    position: "absolute",
+    bottom: -4,
+    right: -4,
+    minWidth: 20,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 999,
+    backgroundColor: "#22d3ee",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#0b1120",
+  },
+  badgeCounterText: {
+    color: "#0b1120",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });
