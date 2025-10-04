@@ -105,6 +105,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
             const isCorrect = game.state === "revealed" && option.code === game.targetCode;
             const isMyChoice = me?.lastChoice === option.code;
             const isWrong = game.state === "revealed" && isMyChoice && !isCorrect;
+            const isPendingSelection = game.state === "playing" && isMyChoice;
             const badgeCount =
               game.state === "playing"
                 ? selectionCounts.get(option.code) ?? 0
@@ -119,6 +120,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
                 isWrong={isWrong}
                 disabled={!isInteractive}
                 badgeCount={badgeCount}
+                isPending={isPendingSelection}
                 onPress={() => {
                   if (!isInteractive) {
                     return;

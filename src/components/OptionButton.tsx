@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type OptionButtonProps = {
@@ -9,6 +9,7 @@ type OptionButtonProps = {
   disabled?: boolean;
   badgeCount?: number;
   onPress: () => void;
+  isPending?: boolean;
 };
 
 export const OptionButton: React.FC<OptionButtonProps> = ({
@@ -19,16 +20,20 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   disabled,
   badgeCount,
   onPress,
+  isPending,
 }) => {
   const backgroundColor = isCorrect
     ? "#22c55e"
     : isWrong
     ? "#ef4444"
+    : isPending
+    ? "#facc15"
     : isSelected
     ? "#ef4444"
     : "#1d4ed8";
 
-  const opacity = disabled && !isSelected && !isCorrect && !isWrong ? 0.6 : 1;
+  const opacity =
+    disabled && !isSelected && !isCorrect && !isWrong && !isPending ? 0.6 : 1;
 
   const showBadge = typeof badgeCount === "number" && badgeCount > 0;
 
@@ -48,7 +53,7 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
       <Text style={styles.label}>{label}</Text>
       {showBadge ? (
         <View style={styles.badge}>
-          <Text style={styles.badgeCheck}>✓</Text>
+          <Text style={styles.badgeCheck}>{'\u2713'}</Text>
           <View style={styles.badgeCounter}>
             <Text style={styles.badgeCounterText}>{badgeCount}</Text>
           </View>
