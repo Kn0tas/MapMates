@@ -26,6 +26,7 @@ const countries = JSON.parse(fs.readFileSync(countriesPath, "utf8"));
 const ROUND_LIMIT = 20;
 const CORRECT_POINTS = 10;
 const FOLLOWUP_POINTS = 9;
+const GUESS_RESPONSE_MS = 10_000;
 const DISCONNECT_GRACE_MS = 20_000;
 
 const REGION_BY_FILTER = {
@@ -108,6 +109,7 @@ const removePlayer = (game, playerId) => {
   }
 
   if (!game.players.size) {
+    clearRoundTimer(game);
     games.delete(game.code);
   }
 };
@@ -158,6 +160,14 @@ const buildPoolForGame = (game) => {
   return filterCountries(game.regionFilter);
 };
 
+const clearRoundTimer = (game) => {
+  if (game.roundTimer) {
+    clearTimeout(game.roundTimer);
+    game.roundTimer = null;
+  }
+  game.timerEndsAt = null;
+};
+
 const resetForNewRound = (game) => {
   game.players.forEach((player) => {
     player.correct = false;
@@ -172,6 +182,7 @@ const resetForNewRound = (game) => {
 
 const startRound = (game, excludeCode) => {
   console.log(`[${game.code}] startRound called for round ${game.round}`);
+  clearRoundTimer(game);
   game.state = "playing";
   const pool = buildPoolForGame(game);
   const { target, options } = buildRound(pool, excludeCode);
@@ -211,6 +222,8 @@ const advanceRoundOrEnd = (game) => {
 
 const evaluateGuesses = (game) => {
   const targetCode = game.target.code;
+
+  clearRoundTimer(game);
 
   const correctPlayers = Array.from(game.players.values())
     .filter((player) => player.connected && player.lastChoice === targetCode);
@@ -296,6 +309,7 @@ io.on("connection", (socket) => {
       target: null,
       options: [],
       timerEndsAt: null,
+      roundTimer: null,
     };
 
     games.set(code, game);
@@ -397,6 +411,8 @@ io.on("connection", (socket) => {
       return;
     }
 
+    clearRoundTimer(game);
+
     game.players.forEach((player) => {
       player.score = 0;
       player.correct = false;
@@ -444,6 +460,16 @@ io.on("connection", (socket) => {
     player.hasAnswered = true;
     player.status = "answered";
     player.answerTimestamp = Date.now();
+
+    if (!game.roundTimer) {
+      game.timerEndsAt = Date.now() + GUESS_RESPONSE_MS;
+      game.roundTimer = setTimeout(() => {
+        console.log(`[${game.code}] Guess response window elapsed; evaluating guesses.`);
+        if (game.state === "playing") {
+          evaluateGuesses(game);
+        }
+      }, GUESS_RESPONSE_MS);
+    }
 
     emitGameState(game);
 
@@ -590,9 +616,3 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`MapMates multiplayer server running on port ${PORT}`);
 });
-
-
-
-
-
-
