@@ -30,6 +30,23 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
   const me = useMemo(() => game?.players.find((player) => player.id === meId), [game, meId]);
   const targetCountry = useMemo(() => findCountryByCode(game?.targetCode ?? null), [game?.targetCode]);
 
+  const selectionCounts = useMemo(() => {
+    if (!game) {
+      return new Map<string, number>();
+    }
+    const counts = new Map<string, number>();
+    game.players.forEach((player) => {
+      if (!player.connected) {
+        return;
+      }
+      if (!player.lastChoice) {
+        return;
+      }
+      counts.set(player.lastChoice, (counts.get(player.lastChoice) ?? 0) + 1);
+    });
+    return counts;
+  }, [game]);
+
   useEffect(() => {
     if (!game) {
       navigation.navigate("MultiplayerHome");
@@ -88,6 +105,11 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
             const isCorrect = game.state === "revealed" && option.code === game.targetCode;
             const isMyChoice = me?.lastChoice === option.code;
             const isWrong = game.state === "revealed" && isMyChoice && !isCorrect;
+            const badgeCount =
+              game.state === "playing"
+                ? selectionCounts.get(option.code) ?? 0
+                : 0;
+
             return (
               <OptionButton
                 key={option.code}
@@ -96,7 +118,7 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
                 isSelected={false}
                 isWrong={isWrong}
                 disabled={!isInteractive}
-                badgeCount={0}
+                badgeCount={badgeCount}
                 onPress={() => {
                   if (!isInteractive) {
                     return;

@@ -25,6 +25,7 @@ const countries = JSON.parse(fs.readFileSync(countriesPath, "utf8"));
 
 const ROUND_LIMIT = 20;
 const CORRECT_POINTS = 10;
+const FOLLOWUP_POINTS = 9;
 const DISCONNECT_GRACE_MS = 20_000;
 
 const REGION_BY_FILTER = {
@@ -85,6 +86,7 @@ const createPlayer = (nickname) => ({
   disconnectDeadline: null,
   disconnectTimer: null,
   awaitingHostDecision: false,
+  answerTimestamp: null,
 });
 
 const removePlayer = (game, playerId) => {
@@ -161,6 +163,7 @@ const resetForNewRound = (game) => {
     player.correct = false;
     player.hasAnswered = false;
     player.lastChoice = null;
+    player.answerTimestamp = null;
     if (player.connected) {
       player.status = game.state === "lobby" ? "lobby" : "playing";
     }
@@ -209,6 +212,22 @@ const advanceRoundOrEnd = (game) => {
 const evaluateGuesses = (game) => {
   const targetCode = game.target.code;
 
+  const correctPlayers = Array.from(game.players.values())
+    .filter((player) => player.connected && player.lastChoice === targetCode);
+
+  let firstCorrectId = null;
+  if (correctPlayers.length) {
+    correctPlayers.sort((a, b) => {
+      const aTime = a.answerTimestamp ?? Number.MAX_SAFE_INTEGER;
+      const bTime = b.answerTimestamp ?? Number.MAX_SAFE_INTEGER;
+      if (aTime === bTime) {
+        return String(a.nickname ?? "").localeCompare(String(b.nickname ?? ""));
+      }
+      return aTime - bTime;
+    });
+    firstCorrectId = correctPlayers[0]?.id ?? null;
+  }
+
   game.players.forEach((player) => {
     if (!player.connected) {
       return;
@@ -218,7 +237,8 @@ const evaluateGuesses = (game) => {
     }
 
     if (player.lastChoice === targetCode) {
-      player.score += CORRECT_POINTS;
+      const award = player.id === firstCorrectId ? CORRECT_POINTS : FOLLOWUP_POINTS;
+      player.score += award;
       player.correct = true;
       player.status = "correct";
     } else {
@@ -382,6 +402,7 @@ io.on("connection", (socket) => {
       player.correct = false;
       player.hasAnswered = false;
       player.lastChoice = null;
+      player.answerTimestamp = null;
       if (player.connected) {
         player.status = "playing";
       }
@@ -422,6 +443,9 @@ io.on("connection", (socket) => {
     player.lastChoice = choice;
     player.hasAnswered = true;
     player.status = "answered";
+    player.answerTimestamp = Date.now();
+
+    emitGameState(game);
 
     const activePlayers = Array.from(game.players.values()).filter((candidate) => candidate.connected);
     const allResponded = activePlayers.every((candidate) => candidate.hasAnswered);
@@ -566,3 +590,9 @@ const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
   console.log(`MapMates multiplayer server running on port ${PORT}`);
 });
+
+
+
+
+
+
