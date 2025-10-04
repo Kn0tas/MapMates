@@ -8,6 +8,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { GameScreen } from "./src/screens/GameScreen";
 import { MenuScreen } from "./src/screens/MenuScreen";
+import { CampaignScreen } from "./src/screens/CampaignScreen";
 import { MapSettingsScreen } from "./src/screens/MapSettingsScreen";
 import { RootStackParamList } from "./src/navigation/types";
 import { MultiplayerHomeScreen } from "./src/screens/multiplayer/MultiplayerHomeScreen";
@@ -55,6 +56,11 @@ const App: React.FC = () => {
             name="Menu"
             component={MenuScreen}
             options={{ title: "Menu" }}
+          />
+          <Stack.Screen
+            name="Campaign"
+            component={CampaignScreen}
+            options={{ title: "Campaign" }}
           />
           <Stack.Screen
             name="MapSettings"

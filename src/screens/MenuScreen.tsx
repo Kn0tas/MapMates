@@ -13,6 +13,12 @@ export const MenuScreen: React.FC<NativeStackScreenProps<RootStackParamList, "Me
       <View style={styles.container}>
         <Pressable
           style={styles.menuButton}
+          onPress={() => navigation.navigate("Campaign")}
+        >
+          <Text style={styles.menuButtonText}>Campaign</Text>
+        </Pressable>
+        <Pressable
+          style={styles.menuButton}
           onPress={() => navigation.navigate("MultiplayerHome")}
         >
           <Text style={styles.menuButtonText}>Multiplayer</Text>
