@@ -1,5 +1,5 @@
-﻿export type RootStackParamList = {
-  Game: undefined;
+export type RootStackParamList = {
+  Game: { campaignStageId?: string } | undefined;
   Menu: undefined;
   Campaign: undefined;
   MapSettings: undefined;

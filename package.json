@@ -30,7 +30,8 @@
         "react-native-screens": "~4.16.0",
         "ws": "7.5.10",
         "zustand": "^4.5.2",
-        "socket.io-client": "^4.7.5"
+        "socket.io-client": "^4.7.5",
+        "expo-secure-store": "~14.0.0"
     },
     "devDependencies": {
         "@babel/core": "^7.24.0",
