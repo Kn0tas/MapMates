@@ -16,7 +16,7 @@ export type CountryGeometry = {
   asset: ImageSourcePropType;
 };
 
-export type GameMode = "standard" | "timed";
+export type GameMode = "standard" | "timed" | "campaign";
 
 export type RoundStatus = "idle" | "playing" | "revealed" | "complete";
 

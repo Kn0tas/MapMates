@@ -14,10 +14,18 @@ import { countries } from "../data/countries";
 export const ROUND_LIMIT = 20;
 const CORRECT_POINTS = 10;
 const FAIL_STREAK_LIMIT = 4;
+
 type RegionFilter = "all" | "europe" | "americas" | "asiaOceania" | "africa";
+type InitOptions = {
+  mode?: GameMode;
+  pool?: CountryGeometry[];
+  roundLimit?: number;
+  campaignStageId?: string;
+};
 
 type GameState = {
   mode: GameMode;
+  campaignStageId?: string;
   round: number;
   score: number;
   highScore: number;
@@ -30,8 +38,10 @@ type GameState = {
   revealedAt?: number;
   history: RoundHistoryEntry[];
   regionFilter: RegionFilter;
+  roundLimit: number;
+  activePool?: CountryGeometry[];
   autoAdvanceReason?: "fail-streak";
-  initGame: (mode?: GameMode) => void;
+  initGame: (options?: InitOptions) => void;
   submitGuess: (countryCode: string) => GuessResult | undefined;
   reveal: () => void;
   nextRound: () => void;
@@ -69,6 +79,7 @@ const getPool = (filter: RegionFilter): CountryGeometry[] => {
 
 export const useGameStore = create<GameState>((set, get) => ({
   mode: "standard",
+  campaignStageId: undefined,
   round: 0,
   score: 0,
   highScore: 0,
@@ -81,23 +92,35 @@ export const useGameStore = create<GameState>((set, get) => ({
   revealedAt: undefined,
   history: [],
   regionFilter: "all",
+  roundLimit: ROUND_LIMIT,
+  activePool: undefined,
   autoAdvanceReason: undefined,
-  initGame: (mode = "standard") => {
-    const pool = getPool(get().regionFilter);
-    const { target, options } = buildRound(pool);
+  initGame: (options) => {
+    const {
+      mode = "standard",
+      pool,
+      roundLimit = ROUND_LIMIT,
+      campaignStageId,
+    } = options ?? {};
+
+    const resolvedPool = pool ?? getPool(get().regionFilter);
+    const { target, options: roundOptions } = buildRound(resolvedPool);
 
     set({
       mode,
+      campaignStageId,
       round: 1,
       score: 0,
       streak: 0,
       incorrectStreak: 0,
       status: "playing",
       target,
-      options,
+      options: roundOptions,
       startedAt: Date.now(),
       revealedAt: undefined,
       history: [],
+      activePool: pool,
+      roundLimit,
       autoAdvanceReason: undefined,
     });
   },
@@ -169,7 +192,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   nextRound: () => {
     const state = get();
 
-    if (state.round >= ROUND_LIMIT) {
+    if (state.round >= state.roundLimit) {
       set((current) => ({
         status: "complete" as RoundStatus,
         revealedAt: Date.now(),
@@ -179,7 +202,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       return;
     }
 
-    const pool = getPool(state.regionFilter);
+    const pool = state.activePool ?? getPool(state.regionFilter);
     const { target: nextTarget, options } = buildRound(pool, state.target?.code);
 
     set((s) => ({
@@ -222,6 +245,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     set((state) => ({
       regionFilter: filter,
       mode: "standard",
+      campaignStageId: undefined,
       round: 1,
       score: 0,
       streak: 0,
@@ -233,6 +257,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       revealedAt: undefined,
       history: [],
       highScore: state.highScore,
+      activePool: undefined,
+      roundLimit: ROUND_LIMIT,
       autoAdvanceReason: undefined,
     }));
   },
@@ -241,4 +267,4 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 }));
 
-export type { RegionFilter };
+export type { RegionFilter, InitOptions };
