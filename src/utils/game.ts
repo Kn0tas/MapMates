@@ -25,15 +25,25 @@ type RoundPayload = {
 
 export const buildRound = (
   pool: CountryGeometry[],
-  excludeCode?: string
+  excludeCode?: string,
+  excludeCodes: string[] = []
 ): RoundPayload => {
   const workingPool = pool.length ? pool : allCountries;
-  const filteredPool = excludeCode
-    ? workingPool.filter((country) => country.code !== excludeCode)
-    : workingPool;
+  const excludeSet = new Set(excludeCodes);
+  if (excludeCode) {
+    excludeSet.add(excludeCode);
+  }
 
-  const targetPool = filteredPool.length ? filteredPool : workingPool;
-  const target = pickRandom(targetPool);
+  let candidatePool = workingPool.filter((country) => !excludeSet.has(country.code));
+
+  if (!candidatePool.length) {
+    const withoutLast = excludeCode
+      ? workingPool.filter((country) => country.code !== excludeCode)
+      : workingPool;
+    candidatePool = withoutLast.length ? withoutLast : workingPool;
+  }
+
+  const target = pickRandom(candidatePool);
 
   const basePool = workingPool
     .filter((candidate) => candidate.code !== target.code)
