@@ -1,5 +1,6 @@
 ﻿import React, { useMemo } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -51,6 +52,7 @@ const describeGoalProgress = (
 export const CampaignScreen: React.FC = () => {
   const navigation = useNavigation<Navigation>();
   const stageProgress = useCampaignStore((state) => state.stageProgress);
+  const resetCampaign = useCampaignStore((state) => state.resetCampaign);
 
   const completedCount = useMemo(
     () => campaignStages.filter((stage) => stageProgress[stage.id]?.completed).length,
@@ -75,7 +77,18 @@ export const CampaignScreen: React.FC = () => {
   }, []);
 
   const handleLaunchStage = (stageId: string) => {
-    navigation.navigate("Game", { campaignStageId: stageId });
+    navigation.push("Game", { campaignStageId: stageId });
+  };
+
+  const handleResetPress = () => {
+    Alert.alert(
+      "Reset campaign",
+      "Are you sure you want to remove all your progress?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Yes", style: "destructive", onPress: () => resetCampaign() },
+      ]
+    );
   };
 
   return (
@@ -118,16 +131,15 @@ export const CampaignScreen: React.FC = () => {
                   <View key={stage.id} style={styles.stageCard}>
                     <View style={styles.stageHeader}>
                       <View style={styles.stageTitleBlock}>
-                        <View style={styles.stageTitleRow}>
-                          <Text style={styles.stageTitle}>{stage.title}</Text>
-                          <Text style={styles.stageRounds}>Rounds {stage.roundLimit}</Text>
-                        </View>
+                        <Text style={styles.stageTitle}>{stage.title}</Text>
+                        <Text style={styles.stageSubtitle}>{stage.subtitle}</Text>
                       </View>
                       <Text style={[styles.stageBadge, badgeStyles[stage.difficulty]]}>
                         {stage.difficulty.toUpperCase()}
                       </Text>
                     </View>
                     <Text style={styles.stageDescription}>{stage.description}</Text>
+                    <Text style={styles.stageMentor}>{stage.mentorLine}</Text>
 
                     <View style={styles.skillRow}>
                       {stage.focusSkills.map((skill) => (
@@ -213,6 +225,11 @@ export const CampaignScreen: React.FC = () => {
             </View>
           </View>
         ))}
+        <View style={styles.resetSection}>
+          <Pressable style={styles.resetButton} onPress={handleResetPress}>
+            <Text style={styles.resetButtonText}>Reset</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -315,21 +332,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
-  stageTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
   stageTitle: {
     fontSize: 20,
     fontWeight: "700",
     color: "#f8fafc",
   },
-  stageRounds: {
-    color: "#94a3b8",
-    fontSize: 12,
-    fontWeight: "600",
+  stageSubtitle: {
+    color: "#cbd5f5",
   },
   stageBadge: {
     paddingHorizontal: 12,
@@ -343,6 +352,10 @@ const styles = StyleSheet.create({
   stageDescription: {
     color: "#e2e8f0",
     lineHeight: 20,
+  },
+  stageMentor: {
+    color: "#94a3b8",
+    fontStyle: "italic",
   },
   skillRow: {
     flexDirection: "row",
@@ -423,6 +436,23 @@ const styles = StyleSheet.create({
   },
   stageButtonText: {
     color: "#f8fafc",
+    fontWeight: "700",
+  },
+  resetSection: {
+    marginTop: 16,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderColor: "#1e293b",
+  },
+  resetButton: {
+    backgroundColor: "#dc2626",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  resetButtonText: {
+    color: "#fef2f2",
+    fontSize: 16,
     fontWeight: "700",
   },
   prerequisiteText: {

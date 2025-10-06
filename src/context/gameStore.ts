@@ -40,6 +40,7 @@ type GameState = {
   regionFilter: RegionFilter;
   roundLimit: number;
   activePool?: CountryGeometry[];
+  usedTargetCodes: string[];
   autoAdvanceReason?: "fail-streak";
   initGame: (options?: InitOptions) => void;
   submitGuess: (countryCode: string) => GuessResult | undefined;
@@ -94,6 +95,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   regionFilter: "all",
   roundLimit: ROUND_LIMIT,
   activePool: undefined,
+  usedTargetCodes: [],
   autoAdvanceReason: undefined,
   initGame: (options) => {
     const {
@@ -104,7 +106,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     } = options ?? {};
 
     const resolvedPool = pool ?? getPool(get().regionFilter);
-    const { target, options: roundOptions } = buildRound(resolvedPool);
+    const { target, options: roundOptions } = buildRound(resolvedPool, undefined, []);
 
     set({
       mode,
@@ -119,6 +121,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       startedAt: Date.now(),
       revealedAt: undefined,
       history: [],
+      usedTargetCodes: [target.code],
       activePool: pool,
       roundLimit,
       autoAdvanceReason: undefined,
@@ -203,7 +206,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     const pool = state.activePool ?? getPool(state.regionFilter);
-    const { target: nextTarget, options } = buildRound(pool, state.target?.code);
+    const usedCodes = state.usedTargetCodes;
+    const uniquePoolLength = pool.length;
+    const shouldReset = usedCodes.length >= uniquePoolLength && uniquePoolLength > 0;
+    const effectiveExclude = shouldReset ? [] : usedCodes;
+    const { target: nextTarget, options } = buildRound(pool, state.target?.code, effectiveExclude);
+    const updatedUsed = shouldReset ? [nextTarget.code] : [...usedCodes, nextTarget.code];
 
     set((s) => ({
       round: s.round + 1,
@@ -213,6 +221,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       startedAt: Date.now(),
       revealedAt: undefined,
       autoAdvanceReason: undefined,
+      usedTargetCodes: updatedUsed,
     }));
   },
   skipRound: () => {
@@ -240,7 +249,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
   setRegionFilter: (filter) => {
     const pool = getPool(filter);
-    const { target, options } = buildRound(pool);
+    const { target, options } = buildRound(pool, undefined, []);
 
     set((state) => ({
       regionFilter: filter,
@@ -256,6 +265,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       startedAt: Date.now(),
       revealedAt: undefined,
       history: [],
+      usedTargetCodes: [target.code],
       highScore: state.highScore,
       activePool: undefined,
       roundLimit: ROUND_LIMIT,

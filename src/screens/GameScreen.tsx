@@ -225,11 +225,12 @@ export const GameScreen: React.FC = () => {
             </View>
             {isCampaignMode && campaignStage ? (
               <View style={styles.campaignHeader}>
-                <Text style={styles.campaignTitle}>{campaignStage.title}</Text>
-                <Text style={styles.campaignSubtitle}>{campaignStage.subtitle}</Text>
-                <Text style={styles.campaignProgress}>
-                  Round {round}/{roundLimit}
-                </Text>
+                <View style={styles.campaignTitleRow}>
+                  <Text style={styles.campaignTitle}>{campaignStage.title}</Text>
+                  <Text style={styles.campaignRoundCount}>
+                    Round {round}/{roundLimit}
+                  </Text>
+                </View>
               </View>
             ) : (
               <View style={styles.scoreWrapper}>
@@ -392,11 +393,13 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#f8fafc",
   },
-  campaignSubtitle: {
-    color: "#94a3b8",
-    fontSize: 13,
+  campaignTitleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
   },
-  campaignProgress: {
+  campaignRoundCount: {
     color: "#38bdf8",
     fontSize: 12,
     textTransform: "uppercase",
