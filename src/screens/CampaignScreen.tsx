@@ -118,16 +118,15 @@ export const CampaignScreen: React.FC = () => {
                   <View key={stage.id} style={styles.stageCard}>
                     <View style={styles.stageHeader}>
                       <View style={styles.stageTitleBlock}>
-                        <View style={styles.stageTitleRow}>
-                          <Text style={styles.stageTitle}>{stage.title}</Text>
-                          <Text style={styles.stageRounds}>Rounds {stage.roundLimit}</Text>
-                        </View>
+                        <Text style={styles.stageTitle}>{stage.title}</Text>
+                        <Text style={styles.stageSubtitle}>{stage.subtitle}</Text>
                       </View>
                       <Text style={[styles.stageBadge, badgeStyles[stage.difficulty]]}>
                         {stage.difficulty.toUpperCase()}
                       </Text>
                     </View>
                     <Text style={styles.stageDescription}>{stage.description}</Text>
+                    <Text style={styles.stageMentor}>{stage.mentorLine}</Text>
 
                     <View style={styles.skillRow}>
                       {stage.focusSkills.map((skill) => (
@@ -315,21 +314,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
-  stageTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
   stageTitle: {
     fontSize: 20,
     fontWeight: "700",
     color: "#f8fafc",
   },
-  stageRounds: {
-    color: "#94a3b8",
-    fontSize: 12,
-    fontWeight: "600",
+  stageSubtitle: {
+    color: "#cbd5f5",
   },
   stageBadge: {
     paddingHorizontal: 12,
@@ -343,6 +334,10 @@ const styles = StyleSheet.create({
   stageDescription: {
     color: "#e2e8f0",
     lineHeight: 20,
+  },
+  stageMentor: {
+    color: "#94a3b8",
+    fontStyle: "italic",
   },
   skillRow: {
     flexDirection: "row",
