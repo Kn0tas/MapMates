@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from "react";
+﻿import React from "react";
 import {
   DefaultTheme,
   NavigationContainer,
@@ -9,7 +9,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GameScreen } from "./src/screens/GameScreen";
 import { MenuScreen } from "./src/screens/MenuScreen";
 import { CampaignScreen } from "./src/screens/CampaignScreen";
-import { useCampaignStore } from "./src/context/campaignStore";
 import { MapSettingsScreen } from "./src/screens/MapSettingsScreen";
 import { RootStackParamList } from "./src/navigation/types";
 import { MultiplayerHomeScreen } from "./src/screens/multiplayer/MultiplayerHomeScreen";

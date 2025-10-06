@@ -1,5 +1,6 @@
 ﻿import React, { useMemo } from "react";
 import {
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -51,6 +52,7 @@ const describeGoalProgress = (
 export const CampaignScreen: React.FC = () => {
   const navigation = useNavigation<Navigation>();
   const stageProgress = useCampaignStore((state) => state.stageProgress);
+  const resetCampaign = useCampaignStore((state) => state.resetCampaign);
 
   const completedCount = useMemo(
     () => campaignStages.filter((stage) => stageProgress[stage.id]?.completed).length,
@@ -75,7 +77,18 @@ export const CampaignScreen: React.FC = () => {
   }, []);
 
   const handleLaunchStage = (stageId: string) => {
-    navigation.navigate("Game", { campaignStageId: stageId });
+    navigation.push("Game", { campaignStageId: stageId });
+  };
+
+  const handleResetPress = () => {
+    Alert.alert(
+      "Reset campaign",
+      "Are you sure you want to remove all your progress?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Yes", style: "destructive", onPress: () => resetCampaign() },
+      ]
+    );
   };
 
   return (
@@ -212,6 +225,11 @@ export const CampaignScreen: React.FC = () => {
             </View>
           </View>
         ))}
+        <View style={styles.resetSection}>
+          <Pressable style={styles.resetButton} onPress={handleResetPress}>
+            <Text style={styles.resetButtonText}>Reset</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -418,6 +436,23 @@ const styles = StyleSheet.create({
   },
   stageButtonText: {
     color: "#f8fafc",
+    fontWeight: "700",
+  },
+  resetSection: {
+    marginTop: 16,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderColor: "#1e293b",
+  },
+  resetButton: {
+    backgroundColor: "#dc2626",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  resetButtonText: {
+    color: "#fef2f2",
+    fontSize: 16,
     fontWeight: "700",
   },
   prerequisiteText: {
