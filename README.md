@@ -99,3 +99,34 @@ Add your preferred licence here (MIT by default).
 
 ## Branding
 - App icon (Expo + Play Store): assets/icon.png
+
+## Privacy Policy
+_Last updated: 26 September 2025_
+
+This policy explains how MapMates collects, uses, and shares the information needed to power the game, including the multiplayer experience hosted on our Railway backend.
+
+### Information We Collect
+- **Player-provided data**: nicknames, optional lobby names, and region preferences that you enter when creating or joining a multiplayer game.
+- **Gameplay data**: answers, scoring events, and lobby state updates required to run a round. Campaign progress is stored locally on your device so you can continue where you left off.
+- **Device context**: Expo and the underlying mobile platforms supply non-identifying diagnostics (such as OS version, device model, and crash reports) to help us monitor performance and stability.
+
+We do **not** collect government IDs, email addresses, phone numbers, advertising IDs, or precise location information inside the app.
+
+### How We Use the Information
+- Run real-time multiplayer sessions, sync guesses between players, and keep score.
+- Maintain local campaign progress using Expo Secure Store so only your device can read the data.
+- Diagnose stability issues, prevent abuse, and improve future updates.
+
+### Data Sharing and Retention
+- Multiplayer data is transferred over HTTPS to our Socket.IO server hosted on Railway. Game state lives in memory only and is discarded when a lobby ends or the server restarts.
+- We do not sell personal data or share it with advertisers. Service providers that help us operate MapMates (Railway, Expo services, and platform app stores) may process limited information according to their own privacy practices.
+- Locally stored campaign progress remains on your device until you clear the app data, uninstall the game, or use the in-app reset option.
+
+### Children
+MapMates is designed for a general audience but is not directed to children under 13. If you are under 13, please play under the supervision of a parent or guardian.
+
+### Security
+We encrypt multiplayer traffic in transit using HTTPS/WSS. While no system can guarantee absolute security, we actively review our infrastructure and minimise the data we handle.
+
+### Contact
+Questions or feedback? Reach out via the developer contact email listed on the MapMates Google Play Store page (currently [support@mapmates.game](mailto:support@mapmates.game)).
