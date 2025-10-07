@@ -20,7 +20,7 @@ const io = new Server(server, {
   },
 });
 
-const countriesPath = path.join(__dirname, "..", "src", "data", "countries.json");
+const countriesPath = path.join(__dirname, "data", "countries.json");
 const countries = JSON.parse(fs.readFileSync(countriesPath, "utf8"));
 
 const ROUND_LIMIT = 20;

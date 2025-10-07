@@ -19,7 +19,7 @@ export const CountryMap: React.FC<CountryMapProps> = ({ target }) => {
 
     const load = async () => {
       try {
-        const asset = Asset.fromModule(target.asset);
+        const asset = Asset.fromModule(target.asset as number);
         if (!asset.downloaded) {
           await asset.downloadAsync();
         }
@@ -81,5 +81,16 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
+  },
+  placeholder: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e2e8f0",
+    borderRadius: 12,
+  },
+  placeholderText: {
+    color: "#0f172a",
+    fontWeight: "600",
   },
 });
