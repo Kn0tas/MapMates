@@ -1,21 +1,26 @@
 {
-  "cli": {
-    "version": ">= 16.19.3",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {
-      "autoIncrement": true
-    }
-  },
-  "submit": {
-    "production": {}
-  }
+    "cli":  {
+                "version":  "\u003e= 16.19.3",
+                "appVersionSource":  "remote"
+            },
+    "build":  {
+                  "development":  {
+                                      "developmentClient":  true,
+                                      "distribution":  "internal"
+                                  },
+                  "preview":  {
+                                  "distribution":  "internal"
+                              },
+                  "production":  {
+                                     "autoIncrement":  true,
+                                     "env":  {
+                                                 "EXPO_PUBLIC_MULTIPLAYER_URL":  "https://mapmates-production.up.railway.app"
+                                             }
+                                 }
+              },
+    "submit":  {
+                   "production":  {
+
+                                  }
+               }
 }

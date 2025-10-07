@@ -1,4 +1,4 @@
-﻿import Constants from "expo-constants";
+import Constants from "expo-constants";
 import { io, Socket } from "socket.io-client";
 import { create } from "zustand";
 
@@ -50,10 +50,29 @@ type MultiplayerStoreState = {
   clearError: () => void;
 };
 
+type ExpoExtra = { multiplayerUrl?: string };
+
+const resolveExtra = (): ExpoExtra | undefined => {
+  const expoConfigExtra = Constants.expoConfig?.extra as ExpoExtra | undefined;
+  if (expoConfigExtra) {
+    return expoConfigExtra;
+  }
+
+  const manifest = (Constants as unknown as { manifest?: { extra?: ExpoExtra } }).manifest?.extra;
+  if (manifest) {
+    return manifest;
+  }
+
+  const manifest2 = (Constants as unknown as { manifest2?: { extra?: ExpoExtra } }).manifest2?.extra;
+  return manifest2;
+};
+
+const DEFAULT_SERVER_URL = "https://mapmates-production.up.railway.app";
+
 const SERVER_URL =
-  (Constants.expoConfig?.extra as { multiplayerUrl?: string } | undefined)?.multiplayerUrl ??
+  resolveExtra()?.multiplayerUrl ??
   process.env.EXPO_PUBLIC_MULTIPLAYER_URL ??
-  "http://localhost:4000";
+  DEFAULT_SERVER_URL;
 
 const mapPhase = (state?: MultiplayerGameState["state"]): MultiplayerPhase => {
   switch (state) {
@@ -99,9 +118,13 @@ export const useMultiplayerStore = create<MultiplayerStoreState>((set, get) => (
 
     if (!socket) {
       socket = io(SERVER_URL, {
-        transports: ["websocket"],
         autoConnect: false,
+        transports: ["websocket", "polling"],
+        secure: SERVER_URL.startsWith("https://"),
       });
+      if (__DEV__) {
+        console.log("[multiplayer] Initialising socket connection", SERVER_URL);
+      }
 
       socket.on("connect", () => {
         set((state) => ({
