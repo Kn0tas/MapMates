@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -20,6 +20,7 @@ type Navigation = NativeStackNavigationProp<RootStackParamList>;
 type GameRoute = RouteProp<RootStackParamList, "Game">;
 
 export const GameScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<Navigation>();
   const route = useRoute<GameRoute>();
   const requestedStageId = route.params?.campaignStageId ?? null;
@@ -206,7 +207,13 @@ export const GameScreen: React.FC = () => {
         onPress={handleAdvance}
         disabled={status === "playing" || (isCampaignMode && status === "complete")}
       >
-        <View style={styles.container} pointerEvents="box-none">
+        <View
+          style={[
+            styles.container,
+            { paddingBottom: 16 + Math.max(insets.bottom, 0) },
+          ]}
+          pointerEvents="box-none"
+        >
           <View style={styles.header}>
             <View style={styles.headerRow}>
               <Text style={styles.title}>MapMates</Text>
