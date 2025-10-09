@@ -5,6 +5,7 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { GameScreen } from "./src/screens/GameScreen";
 import { MenuScreen } from "./src/screens/MenuScreen";
@@ -34,11 +35,12 @@ const theme = {
 
 const App: React.FC = () => {
   return (
-    <SafeAreaProvider>
-      <NavigationContainer theme={theme}>
-        <Stack.Navigator
-          initialRouteName="Game"
-          screenOptions={{
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <NavigationContainer theme={theme}>
+          <Stack.Navigator
+            initialRouteName="Game"
+            screenOptions={{
             headerStyle: { backgroundColor: "#0b1120" },
             headerTintColor: "#f8fafc",
             headerTitleStyle: { fontWeight: "700", fontSize: 18 },
@@ -101,6 +103,7 @@ const App: React.FC = () => {
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
+  </GestureHandlerRootView>
   );
 };
 
