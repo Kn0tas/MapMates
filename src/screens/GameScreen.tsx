@@ -317,7 +317,7 @@ export const GameScreen: React.FC = () => {
                           achieved ? styles.goalCompleted : styles.goalPending,
                         ]}
                       >
-                        {achieved ? "✓" : "○"}
+                        {achieved ? "\u2714" : "\u2717"}
                       </Text>
                       <Text style={styles.summaryGoalText}>{goal.label}</Text>
                     </View>
