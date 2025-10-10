@@ -97,21 +97,21 @@ export const MultiplayerGameScreen: React.FC<Props> = ({ navigation }) => {
 
   if (!game) {
     return (
-      <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
         <View style={styles.centered}>
-          <Text style={styles.message}>Connecting to multiplayer server…</Text>
+          <Text style={styles.message}>Connecting to multiplayer server...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>MapMates</Text>
           <Text style={styles.subtitle}>
-            Round {game.round}/{game.maxRounds} · Players: {game.players.length}
+            Round {game.round}/{game.maxRounds} {"\u2022"} Players: {game.players.length}
           </Text>
         </View>
 
@@ -280,4 +280,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
