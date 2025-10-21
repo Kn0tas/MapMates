@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import type { ImageSourcePropType } from "react-native";
 import { Asset } from "expo-asset";
 import {
   PanGestureHandler,
@@ -19,10 +20,14 @@ import {
   State,
 } from "react-native-gesture-handler";
 
-import { CountryGeometry } from "../types/country";
+type MapTarget = {
+  code: string;
+  name: string;
+  asset: ImageSourcePropType;
+};
 
 type CountryMapProps = {
-  target: CountryGeometry;
+  target: MapTarget;
 };
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
