@@ -18,6 +18,7 @@ import { MultiplayerJoinScreen } from "./src/screens/multiplayer/MultiplayerJoin
 import { MultiplayerLobbyScreen } from "./src/screens/multiplayer/MultiplayerLobbyScreen";
 import { MultiplayerGameScreen } from "./src/screens/multiplayer/MultiplayerGameScreen";
 import { MultiplayerResultsScreen } from "./src/screens/multiplayer/MultiplayerResultsScreen";
+import { StatesGameScreen } from "./src/screens/StatesGameScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -52,6 +53,11 @@ const App: React.FC = () => {
           <Stack.Screen
             name="Game"
             component={GameScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StatesGame"
+            component={StatesGameScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

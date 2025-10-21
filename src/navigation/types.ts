@@ -1,5 +1,6 @@
 export type RootStackParamList = {
   Game: { campaignStageId?: string } | undefined;
+  StatesGame: undefined;
   Menu: undefined;
   Campaign: undefined;
   MapSettings: undefined;
