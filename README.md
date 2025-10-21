@@ -129,4 +129,4 @@ MapMates is designed for a general audience but is not directed to children unde
 We encrypt multiplayer traffic in transit using HTTPS/WSS. While no system can guarantee absolute security, we actively review our infrastructure and minimise the data we handle.
 
 ### Contact
-Questions or feedback? Reach out via the developer contact email listed on the MapMates Google Play Store page (currently [support@mapmates.game](mailto:support@mapmates.game)).
+Questions or feedback? Reach out via the developer contact email listed on the MapMates Google Play Store page (currently [linusekvall89@gmail.com](mailto:linusekvall89@gmail.com)).
