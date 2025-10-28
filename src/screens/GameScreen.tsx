@@ -36,12 +36,10 @@ export const GameScreen: React.FC = () => {
     score,
     highScore,
     streak,
-    autoAdvanceReason,
     history,
     initGame,
     submitGuess,
     nextRound,
-    acknowledgeAutoAdvance,
   } = useGameStore((state) => ({
     mode: state.mode,
     campaignStageId: state.campaignStageId,
@@ -53,12 +51,10 @@ export const GameScreen: React.FC = () => {
     score: state.score,
     highScore: state.highScore,
     streak: state.streak,
-    autoAdvanceReason: state.autoAdvanceReason,
     history: state.history,
     initGame: state.initGame,
     submitGuess: state.submitGuess,
     nextRound: state.nextRound,
-    acknowledgeAutoAdvance: state.acknowledgeAutoAdvance,
   }));
   const [selection, setSelection] = useState<string | null>(null);
   const campaignStage = useMemo(() => {
@@ -141,10 +137,6 @@ export const GameScreen: React.FC = () => {
       return `Great job! Final score: ${score}.${highNote}`;
     }
 
-    if (status === "revealed" && autoAdvanceReason === "fail-streak") {
-      return `That's ${target.name}. Four misses in a row, moving on.`;
-    }
-
     if (selection === target.code) {
       return `Correct! It's ${target.name}.`;
     }
@@ -155,7 +147,7 @@ export const GameScreen: React.FC = () => {
     }
 
     return `It's ${target.name}.`;
-  }, [status, target, selection, options, score, highScore, autoAdvanceReason, isCampaignMode, campaignStage]);
+  }, [status, target, selection, options, score, highScore, isCampaignMode, campaignStage]);
 
   const handleAdvance = () => {
     if (isCampaignMode && status === "complete") {
@@ -163,7 +155,6 @@ export const GameScreen: React.FC = () => {
     }
 
     if (status === "revealed") {
-      acknowledgeAutoAdvance();
       nextRound();
     } else if (status === "idle" || status === "complete") {
       initGame();
@@ -282,7 +273,7 @@ export const GameScreen: React.FC = () => {
           </View>
 
           {!isCampaignMode && (
-            <RoundControls status={status} autoAdvanceReason={autoAdvanceReason} />
+            <RoundControls status={status} />
           )}
 
           {isCampaignMode && campaignStage && status === "complete" && campaignSummary && (

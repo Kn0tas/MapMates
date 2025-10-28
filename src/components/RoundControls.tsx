@@ -5,22 +5,16 @@ import { RoundStatus } from "../types/country";
 
 type RoundControlsProps = {
   status: RoundStatus;
-  autoAdvanceReason?: "fail-streak";
 };
 
-export const RoundControls: React.FC<RoundControlsProps> = ({ status, autoAdvanceReason }) => {
+export const RoundControls: React.FC<RoundControlsProps> = ({ status }) => {
   if (status === "playing") {
     return null;
   }
 
-  const hintText =
-    autoAdvanceReason === "fail-streak"
-      ? "Four misses in a row, moving on..."
-      : "Tap anywhere to continue";
-
   return (
     <View style={styles.hint} pointerEvents="none">
-      <Text style={styles.hintText}>{hintText}</Text>
+      <Text style={styles.hintText}>Tap anywhere to continue</Text>
     </View>
   );
 };

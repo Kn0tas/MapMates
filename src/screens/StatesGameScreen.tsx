@@ -23,11 +23,9 @@ export const StatesGameScreen: React.FC<Props> = ({ navigation }) => {
     score,
     highScore,
     streak,
-    autoAdvanceReason,
     initGame,
     submitGuess,
     nextRound,
-    acknowledgeAutoAdvance,
   } = useStatesGameStore((state) => ({
     status: state.status,
     target: state.target,
@@ -37,11 +35,9 @@ export const StatesGameScreen: React.FC<Props> = ({ navigation }) => {
     score: state.score,
     highScore: state.highScore,
     streak: state.streak,
-    autoAdvanceReason: state.autoAdvanceReason,
     initGame: state.initGame,
     submitGuess: state.submitGuess,
     nextRound: state.nextRound,
-    acknowledgeAutoAdvance: state.acknowledgeAutoAdvance,
   }));
   const [selection, setSelection] = useState<string | null>(null);
 
@@ -69,10 +65,6 @@ export const StatesGameScreen: React.FC<Props> = ({ navigation }) => {
       return `Nice work! Final score: ${score}.${highNote}`;
     }
 
-    if (status === "revealed" && autoAdvanceReason === "fail-streak") {
-      return `That's ${target.name}. Four misses in a row, moving on.`;
-    }
-
     if (selection === target.code) {
       return `Correct! It's ${target.name}.`;
     }
@@ -83,7 +75,7 @@ export const StatesGameScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     return `It's ${target.name}.`;
-  }, [status, target, selection, options, score, highScore, autoAdvanceReason]);
+  }, [status, target, selection, options, score, highScore]);
 
   const handleAdvance = () => {
     if (status === "playing") {
@@ -91,7 +83,6 @@ export const StatesGameScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     if (status === "revealed") {
-      acknowledgeAutoAdvance();
       nextRound();
     } else if (status === "complete" || status === "idle") {
       initGame();
@@ -177,7 +168,7 @@ export const StatesGameScreen: React.FC<Props> = ({ navigation }) => {
             })}
           </View>
 
-          <RoundControls status={status} autoAdvanceReason={autoAdvanceReason} />
+          <RoundControls status={status} />
         </View>
       </Pressable>
     </SafeAreaView>
