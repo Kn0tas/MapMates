@@ -13,7 +13,6 @@ import { countries } from "../data/countries";
 
 export const ROUND_LIMIT = 20;
 const CORRECT_POINTS = 10;
-const FAIL_STREAK_LIMIT = 4;
 
 type RegionFilter = "all" | "europe" | "americas" | "asiaOceania" | "africa";
 type InitOptions = {
@@ -30,7 +29,6 @@ type GameState = {
   score: number;
   highScore: number;
   streak: number;
-  incorrectStreak: number;
   status: RoundStatus;
   target?: CountryGeometry;
   options: CountryGeometry[];
@@ -41,14 +39,12 @@ type GameState = {
   roundLimit: number;
   activePool?: CountryGeometry[];
   usedTargetCodes: string[];
-  autoAdvanceReason?: "fail-streak";
   initGame: (options?: InitOptions) => void;
   submitGuess: (countryCode: string) => GuessResult | undefined;
   reveal: () => void;
   nextRound: () => void;
   skipRound: () => void;
   setRegionFilter: (filter: RegionFilter) => void;
-  acknowledgeAutoAdvance: () => void;
 };
 
 const calculateElapsed = (startedAt?: number): number => {
@@ -85,7 +81,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   score: 0,
   highScore: 0,
   streak: 0,
-  incorrectStreak: 0,
   status: "idle",
   target: undefined,
   options: [],
@@ -96,7 +91,6 @@ export const useGameStore = create<GameState>((set, get) => ({
   roundLimit: ROUND_LIMIT,
   activePool: undefined,
   usedTargetCodes: [],
-  autoAdvanceReason: undefined,
   initGame: (options) => {
     const {
       mode = "standard",
@@ -114,7 +108,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       round: 1,
       score: 0,
       streak: 0,
-      incorrectStreak: 0,
       status: "playing",
       target,
       options: roundOptions,
@@ -124,7 +117,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       usedTargetCodes: [target.code],
       activePool: pool,
       roundLimit,
-      autoAdvanceReason: undefined,
     });
   },
   submitGuess: (countryCode) => {
@@ -137,16 +129,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     const elapsedMs = calculateElapsed(get().startedAt);
     const isCorrect = target.code === countryCode;
     const result: GuessResult = isCorrect ? "correct" : "incorrect";
-    let shouldAutoAdvance = false;
 
     set((state) => {
-      const incorrectStreak = isCorrect ? 0 : state.incorrectStreak + 1;
-      const shouldTriggerAutoAdvance = !isCorrect && incorrectStreak >= FAIL_STREAK_LIMIT;
-
-      if (shouldTriggerAutoAdvance) {
-        shouldAutoAdvance = true;
-      }
-
       const updatedScore = state.score + (isCorrect ? CORRECT_POINTS : 0);
       const updatedStreak = isCorrect ? state.streak + 1 : 0;
       const historyEntry: RoundHistoryEntry = {
@@ -162,22 +146,8 @@ export const useGameStore = create<GameState>((set, get) => ({
         status: "revealed" as RoundStatus,
         revealedAt: Date.now(),
         history: [...state.history, historyEntry],
-        incorrectStreak,
-        autoAdvanceReason: shouldTriggerAutoAdvance ? "fail-streak" : undefined,
       };
     });
-
-    if (shouldAutoAdvance) {
-      setTimeout(() => {
-        const { status: latestStatus, autoAdvanceReason } = get();
-        if (latestStatus !== "revealed" || autoAdvanceReason !== "fail-streak") {
-          return;
-        }
-
-        get().nextRound();
-        set({ autoAdvanceReason: undefined });
-      }, 1500);
-    }
 
     return result;
   },
@@ -189,7 +159,6 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({
       status: "revealed",
       revealedAt: Date.now(),
-      autoAdvanceReason: undefined,
     });
   },
   nextRound: () => {
@@ -200,7 +169,6 @@ export const useGameStore = create<GameState>((set, get) => ({
         status: "complete" as RoundStatus,
         revealedAt: Date.now(),
         highScore: Math.max(current.highScore, current.score),
-        autoAdvanceReason: undefined,
       }));
       return;
     }
@@ -220,7 +188,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       options,
       startedAt: Date.now(),
       revealedAt: undefined,
-      autoAdvanceReason: undefined,
       usedTargetCodes: updatedUsed,
     }));
   },
@@ -244,7 +211,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       status: "revealed" as RoundStatus,
       revealedAt: Date.now(),
       streak: 0,
-      autoAdvanceReason: undefined,
     }));
   },
   setRegionFilter: (filter) => {
@@ -258,7 +224,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       round: 1,
       score: 0,
       streak: 0,
-      incorrectStreak: 0,
       status: "playing",
       target,
       options,
@@ -269,11 +234,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       highScore: state.highScore,
       activePool: undefined,
       roundLimit: ROUND_LIMIT,
-      autoAdvanceReason: undefined,
     }));
-  },
-  acknowledgeAutoAdvance: () => {
-    set({ autoAdvanceReason: undefined });
   },
 }));
 
